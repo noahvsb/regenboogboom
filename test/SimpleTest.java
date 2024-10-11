@@ -1,7 +1,8 @@
-import org.junit.jupiter.*;
+import org.junit.jupiter.api.Test;
 
 public class SimpleTest {
-    public static void main(String[] args) {
+    @Test
+    public void test() {
         System.out.println("test");
     }
 }
