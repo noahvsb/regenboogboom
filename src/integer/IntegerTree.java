@@ -2,7 +2,6 @@ package integer;
 
 import opgave.Node;
 import opgave.SearchTree;
-import redblack.RedBlackNode;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,7 +11,7 @@ import java.util.Set;
 public abstract class IntegerTree implements SearchTree<Integer> {
 
     protected IntegerNode root;
-    protected Set<IntegerNode> allNodes;
+    protected Set<IntegerNode> allNodes; // excludes removed nodes
 
     public IntegerTree(IntegerNode root) {
         this.root = root;

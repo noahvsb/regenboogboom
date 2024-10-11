@@ -39,6 +39,19 @@ public abstract class IntegerNode implements Node<Integer> {
     @Override
     public abstract IntegerNode getRight(); // same here
 
+    public int childrenCount() {
+        int count = 0;
+        if (getLeft().isRemoved() || getLeft() == null)
+            count++;
+        if (getRight().isRemoved() || getRight() == null)
+            count++;
+        return count;
+    }
+
+    public boolean isLeaf() {
+        return childrenCount() == 0;
+    }
+
     @Override
     public String toString() {
         if (isRemoved)

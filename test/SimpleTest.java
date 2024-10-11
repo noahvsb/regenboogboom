@@ -11,8 +11,9 @@ public class SimpleTest {
         RedBlackTree tree = new RedBlackTree(root);
         Assertions.assertTrue(tree.add(12, 5));
         Assertions.assertEquals(3, tree.size());
-        Assertions.assertTrue(tree.remove(5));
+        Assertions.assertTrue(tree.remove(10));
         Assertions.assertEquals(2, tree.size());
+        System.out.println(tree.values());
         System.out.println(tree.getSearchPath(5));
     }
 

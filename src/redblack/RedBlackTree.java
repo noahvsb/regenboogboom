@@ -15,14 +15,14 @@ public class RedBlackTree extends IntegerTree {
 
     @Override
     public boolean add(Integer key) {
-        // key exists
+        // node with key exists
         if (search(key))
             return false;
 
         List<IntegerNode> path = getSearchPath(key);
         RedBlackNode parent = (RedBlackNode) path.getLast();
 
-        // key is a gravestone
+        // node with key is a tombstone
         if (parent.getValue().equals(key))
             parent.changeRemoveState();
 
@@ -53,16 +53,32 @@ public class RedBlackTree extends IntegerTree {
 
     @Override
     public boolean remove(Integer key) {
-        // key exists
+        // key exists (and thus also isn't a tombstone)
         if (search(key)) {
-            RedBlackNode nodeToBeRemoved = (RedBlackNode) getSearchPath(key).getLast();
-            nodeToBeRemoved.changeRemoveState();
-            allNodes.remove(nodeToBeRemoved); // to make sure the key isn't being found
-            removedAmount++;
-            if (removedAmount > size() / 2) {
-                removedAmount = 0;
-                rebuild();
+            List<IntegerNode> path = getSearchPath(key);
+            RedBlackNode node = (RedBlackNode) path.getLast();
+            // TODO: red leaf or black node with max 1 child and red parent
+            if ((node.getColour() == 1 && node.isLeaf())
+                || (node.getColour() == 0 && node.childrenCount() < 2 && path.get(path.size() - 2).getColour() == 1)) {
+
             }
+
+            // turn black leaf with black parent into tombstone
+            else if (node.getColour() == 0 && node.isLeaf() && path.get(path.size() - 2).getColour() == 0) {
+                node.changeRemoveState();
+                allNodes.remove(node);
+                removedAmount++;
+                if (removedAmount > size() / 2) {
+                    removedAmount = 0;
+                    rebuild();
+                }
+            }
+
+            // TODO: intern node
+            else {
+
+            }
+
             return true;
         }
         return false;
