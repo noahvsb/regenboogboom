@@ -34,8 +34,15 @@ public abstract class IntegerNode implements Node<Integer> {
     }
 
     @Override
-    public abstract IntegerNode getLeft();
+    public abstract IntegerNode getLeft(); // if I would implement this function here, I have to keep casting when using it
 
     @Override
-    public abstract IntegerNode getRight();
+    public abstract IntegerNode getRight(); // same here
+
+    @Override
+    public String toString() {
+        if (isRemoved)
+            return String.format("(removed - key: %d)", key);
+        return String.format("(key: %d, colour: %d)", key, colour);
+    }
 }
