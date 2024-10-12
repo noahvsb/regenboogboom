@@ -41,9 +41,9 @@ public abstract class IntegerNode implements Node<Integer> {
 
     public int childrenCount() {
         int count = 0;
-        if (getLeft().isRemoved() || getLeft() == null)
+        if (getLeft() == null || getLeft().isRemoved)
             count++;
-        if (getRight().isRemoved() || getRight() == null)
+        if (getRight() == null || getRight().isRemoved)
             count++;
         return count;
     }

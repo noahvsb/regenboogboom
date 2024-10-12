@@ -1,6 +1,5 @@
 package integer;
 
-import opgave.Node;
 import opgave.SearchTree;
 
 import java.util.ArrayList;
@@ -62,12 +61,20 @@ public abstract class IntegerTree implements SearchTree<Integer> {
     public abstract void rebuild();
 
     @Override
-    public Node<Integer> root() {
+    public IntegerNode root() {
         return root;
     }
 
     @Override
     public List<Integer> values() {
         return allNodes.stream().map(IntegerNode::getValue).toList();
+    }
+
+    public long maxDepth() {
+        return 2 * log2(size() + 1) - 1;
+    }
+
+    private long log2(int n) {
+        return Math.round(Math.log(n) / Math.log(2));
     }
 }
