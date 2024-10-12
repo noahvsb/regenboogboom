@@ -5,8 +5,8 @@ import integer.IntegerTree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-// allows you to visualize simple trees with keys smaller than 100
 public class TreeVisualizer {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[40m";
@@ -21,9 +21,13 @@ public class TreeVisualizer {
             {ANSI_BLACK, ANSI_RED, ANSI_GREEN, ANSI_YELLOW, ANSI_BLUE, ANSI_PURPLE, ANSI_CYAN, ANSI_WHITE};
 
     public static void print(IntegerTree tree) {
-        int depth = (int) tree.maxDepth();
-        String[][] lines = new String[depth + 1][];
-        lines[0] = new String[]{colouredNode(tree.root())};
+        print(tree, 2);
+    }
+    public static void print(IntegerTree tree, int digits) {
+        int maxDepth = (int) tree.maxDepth();
+        int actualDepth = maxDepth;
+        String[][] lines = new String[maxDepth + 1][];
+        lines[0] = new String[]{colouredNode(tree.root(), digits)};
 
         List<IntegerNode> lastLevelNodes = List.of(tree.root());
         for (int lineLevel = 1; lineLevel <= tree.maxDepth(); lineLevel++) {
@@ -39,31 +43,33 @@ public class TreeVisualizer {
             }
 
             lines[lineLevel] = new String[thisLevelNodes.size()];
-            for (int i = 0; i < thisLevelNodes.size(); i++)
-                lines[lineLevel][i] = colouredNode(thisLevelNodes.get(i));
+            if (thisLevelNodes.stream().filter(Objects::nonNull).toList().isEmpty())
+                actualDepth--;
+            else
+                for (int i = 0; i < thisLevelNodes.size(); i++)
+                    lines[lineLevel][i] = colouredNode(thisLevelNodes.get(i), digits);
 
             lastLevelNodes = thisLevelNodes;
         }
 
-        for (int i = 0; i < lines.length; i++) {
+        for (int i = 0; i <= actualDepth; i++) {
             String[] line = lines[i];
 
-            int nodesOnHighestDepth = (int) Math.round(Math.pow(2, depth));
+            int nodesOnHighestDepth = (int) Math.round(Math.pow(2, actualDepth));
             int startSpacing = (nodesOnHighestDepth * 2) - 2 * i;
             System.out.print(" ".repeat(startSpacing));
 
             for (String node : line)
-                System.out.print(node + "  ");
+                System.out.print(node + "  ".repeat(2 * (actualDepth - i)));
             System.out.println();
         }
     }
 
-    private static String colouredNode(IntegerNode n) {
+    private static String colouredNode(IntegerNode n, int digits) {
         if (n == null)
-            return "";
+            return " ".repeat(digits);
         String v = n.getValue().toString();
-        if (v.length() == 1)
-            v = "0" + v;
+        v = "0".repeat(digits - v.length()) + v;
         return colorIntToString[n.getColour()] + v + ANSI_RESET;
     }
 }

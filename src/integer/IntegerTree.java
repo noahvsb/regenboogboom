@@ -54,6 +54,14 @@ public abstract class IntegerTree implements SearchTree<Integer> {
     @Override
     public abstract boolean add(Integer key);
 
+    // add multiple keys at once, stops if a key can't be added
+    public boolean add(int... keys) {
+        for (int key : keys)
+            if (!add(key))
+                return false;
+        return true;
+    }
+
     @Override
     public abstract boolean remove(Integer key);
 

@@ -25,21 +25,24 @@ public class RedBlackTree extends IntegerTree {
         RedBlackNode parent = (RedBlackNode) path.getLast();
 
         // node with key is a tombstone
-        if (parent.getValue().equals(key))
+        if (parent.getValue().equals(key)) {
             parent.changeRemoveState();
+            allNodes.add(parent);
+        }
 
         // no issue
         if (parent.getColour() == 0) {
             RedBlackNode newNode = new RedBlackNode(key, false);
+            allNodes.add(newNode);
             if (key < parent.getValue())
                 parent.setLeft(newNode);
             else
                 parent.setRight(newNode);
-            allNodes.add(newNode);
         }
         // issue
         else {
             RedBlackNode issueSource = new RedBlackNode(key, false);
+            allNodes.add(issueSource);
 
             RedBlackNode p1 = (RedBlackNode) path.removeLast();
             RedBlackNode p2 = (RedBlackNode) path.removeLast();
@@ -77,13 +80,12 @@ public class RedBlackTree extends IntegerTree {
                         p.setRight(n1);
                 }
 
-                System.out.println(nodes);
                 n1.setLeft(n2);
                 n1.setRight(n3);
                 n2.setLeft(nodes.get(3));
                 n2.setRight(nodes.get(4));
                 n3.setLeft(nodes.get(5));
-                n3.setLeft(nodes.get(6));
+                n3.setRight(nodes.get(6));
 
                 // check if done
                 if (useOptimized) {
@@ -104,7 +106,6 @@ public class RedBlackTree extends IntegerTree {
                             p2 = (RedBlackNode) path.removeLast();
                     }
                 }
-                TreeVisualizer.print(this);
             }
         }
         return true;
@@ -121,14 +122,6 @@ public class RedBlackTree extends IntegerTree {
             return Arrays.asList(n1, n2, n3, n2.getLeft(), n1.getLeft(), n1.getRight(), n3.getRight());
         }
         return Arrays.asList(n2, n3, n1, n3.getLeft(), n2.getLeft(), n1.getLeft(), n1.getRight());
-    }
-
-    // add multiple keys at once, stops if a key can't be added
-    public boolean add(Integer... keys) {
-        for (int key : keys)
-            if (!add(key))
-                return false;
-        return true;
     }
 
     @Override
