@@ -3,10 +3,9 @@ package visualizer;
 import integer.IntegerNode;
 import integer.IntegerTree;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
+// visualize any tree with maximum 6 colours
 public class TreeVisualizer {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[40m";
@@ -15,10 +14,8 @@ public class TreeVisualizer {
     public static final String ANSI_YELLOW = "\u001B[43m";
     public static final String ANSI_BLUE = "\u001B[44m";
     public static final String ANSI_PURPLE = "\u001B[45m";
-    public static final String ANSI_CYAN = "\u001B[46m";
-    public static final String ANSI_WHITE = "\u001B[47m";
     public static final String[] colorIntToString =
-            {ANSI_BLACK, ANSI_RED, ANSI_GREEN, ANSI_YELLOW, ANSI_BLUE, ANSI_PURPLE, ANSI_CYAN, ANSI_WHITE};
+            {ANSI_BLACK, ANSI_RED, ANSI_GREEN, ANSI_YELLOW, ANSI_BLUE, ANSI_PURPLE};
 
     public static void print(IntegerTree tree) {
         print(tree, 2);
@@ -26,11 +23,15 @@ public class TreeVisualizer {
     public static void print(IntegerTree tree, int digits) {
         int maxDepth = (int) tree.maxDepth();
         int actualDepth = maxDepth;
-        String[][] lines = new String[maxDepth + 1][];
-        lines[0] = new String[]{colouredNode(tree.root(), digits)};
 
-        List<IntegerNode> lastLevelNodes = List.of(tree.root());
+        String[][] lines = new String[maxDepth + 1][];
+        lines[0] = new String[]{nodeToString(tree.root(), digits)};
+
+        List<IntegerNode> lastLevelNodes = Collections.singletonList(tree.root());
+
         for (int lineLevel = 1; lineLevel <= tree.maxDepth(); lineLevel++) {
+
+            // fill a list with all nodes in this level, which are the children from lastLevelNodes
             List<IntegerNode> thisLevelNodes = new ArrayList<>();
             for (IntegerNode node : lastLevelNodes) {
                 if (node == null) {
@@ -42,16 +43,18 @@ public class TreeVisualizer {
                 }
             }
 
+            // create the string array using all nodes on this level and fill it unless all nodes are null
             lines[lineLevel] = new String[thisLevelNodes.size()];
             if (thisLevelNodes.stream().filter(Objects::nonNull).toList().isEmpty())
                 actualDepth--;
             else
                 for (int i = 0; i < thisLevelNodes.size(); i++)
-                    lines[lineLevel][i] = colouredNode(thisLevelNodes.get(i), digits);
+                    lines[lineLevel][i] = nodeToString(thisLevelNodes.get(i), digits);
 
             lastLevelNodes = thisLevelNodes;
         }
 
+        // print out all lines with spacing
         for (int i = 0; i <= actualDepth; i++) {
             String[] line = lines[i];
 
@@ -65,7 +68,8 @@ public class TreeVisualizer {
         }
     }
 
-    private static String colouredNode(IntegerNode n, int digits) {
+    // convert a node to a colouredString
+    private static String nodeToString(IntegerNode n, int digits) {
         if (n == null)
             return " ".repeat(digits);
         String v = n.getValue().toString();

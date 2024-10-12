@@ -1,9 +1,7 @@
-package redblack;
+package oplossing;
 
 import integer.IntegerNode;
 import integer.IntegerTree;
-import visualizer.TreeVisualizer;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,12 +9,12 @@ public class RedBlackTree extends IntegerTree {
 
     private int removedAmount;
 
-    public RedBlackTree (RedBlackNode root) {
-        super(root);
-    }
-
     @Override
     public boolean add(Integer key) {
+        if (root == null) {
+            root = new RedBlackNode(key, true);
+            return true;
+        }
         // node with key exists
         if (search(key))
             return false;
@@ -131,10 +129,10 @@ public class RedBlackTree extends IntegerTree {
             List<IntegerNode> path = getSearchPath(key);
             RedBlackNode node = (RedBlackNode) path.getLast();
 
-            // TODO: red leaf or black node with max 1 child and red parent
+            // red leaf or black node with max 1 child and red parent
             if ((node.getColour() == 1 && node.isLeaf())
                 || (node.getColour() == 0 && node.childrenCount() < 2 && path.get(path.size() - 2).getColour() == 1)) {
-
+                // TODO
             }
 
             // turn black leaf with black parent into tombstone
@@ -148,9 +146,9 @@ public class RedBlackTree extends IntegerTree {
                 }
             }
 
-            // TODO: intern node
+            // intern node
             else {
-
+                // TODO
             }
 
             return true;

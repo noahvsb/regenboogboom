@@ -1,4 +1,4 @@
-package redblack;
+package oplossing;
 
 import integer.IntegerNode;
 

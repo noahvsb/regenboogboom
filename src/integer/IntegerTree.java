@@ -12,9 +12,9 @@ public abstract class IntegerTree implements SearchTree<Integer> {
     protected IntegerNode root;
     protected Set<IntegerNode> allNodes; // excludes removed nodes
 
-    public IntegerTree(IntegerNode root) {
-        this.root = root;
-        this.allNodes = new HashSet<>(Set.of(this.root));
+    public IntegerTree() {
+        this.root = null;
+        this.allNodes = new HashSet<>();
     }
 
     @Override
@@ -79,6 +79,8 @@ public abstract class IntegerTree implements SearchTree<Integer> {
     }
 
     public long maxDepth() {
+        if (root == null)
+            return 0;
         return 2 * log2(size() + 1) - 1;
     }
 
