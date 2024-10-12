@@ -1,15 +1,24 @@
+import opgave.SearchTree;
 import org.junit.jupiter.api.Test;
 import oplossing.RedBlackTree;
-import visualizer.TreeVisualizer;
+import visualizer.IntegerTreeVisualizer;
 
 import java.util.stream.IntStream;
 
 public class SimpleTest {
     @Test
     public void RedBlackTree() {
-        RedBlackTree tree = new RedBlackTree();
-        tree.add(IntStream.range(1, 51).toArray());
+        RedBlackTree<Integer> tree = new RedBlackTree<>();
+        add(tree, IntStream.range(1, 51).toArray());
 
-        TreeVisualizer.print(tree);
+        IntegerTreeVisualizer.print(tree);
+    }
+
+    // add multiple keys at once in an integer tree, stops if a key can't be added
+    public boolean add(SearchTree<Integer> tree, int... keys) {
+        for (int key : keys)
+            if (!tree.add(key))
+                return false;
+        return true;
     }
 }

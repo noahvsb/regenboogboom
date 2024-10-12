@@ -1,38 +1,16 @@
 package oplossing;
 
-import integer.IntegerNode;
+// if any other value than red or black is given as its colour, it defaults to black
+public class RedBlackNode<E extends Comparable<E>> extends ColouredNode<E> {
 
-public class RedBlackNode extends IntegerNode {
-
-    private RedBlackNode leftChild;
-    private RedBlackNode rightChild;
-
-    public RedBlackNode(int key, boolean black) {
-        super(key, black ? 0 : 1);
-
-        leftChild = null;
-        rightChild = null;
-    }
-
-    public void setColour(boolean black) {
-        colour = black ? 0 : 1;
+    public RedBlackNode(E key, int colour) {
+        super(key, colour != 1 ? 0 : 1);
     }
 
     @Override
-    public RedBlackNode getLeft() {
-        return leftChild;
-    }
-
-    public void setLeft(RedBlackNode leftChild) {
-        this.leftChild = leftChild;
-    }
-
-    @Override
-    public RedBlackNode getRight() {
-        return rightChild;
-    }
-
-    public void setRight(RedBlackNode rightChild) {
-        this.rightChild = rightChild;
+    public void setColour(int colour) {
+        if (colour != 1)
+            colour = 0;
+        this.colour = colour;
     }
 }

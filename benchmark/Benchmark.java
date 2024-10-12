@@ -1,3 +1,4 @@
+import opgave.SearchTree;
 import oplossing.RedBlackTree;
 
 import java.util.Arrays;
@@ -19,8 +20,16 @@ public class Benchmark {
     }
 
     private static void RedBlackTree(int n) {
-        RedBlackTree tree = new RedBlackTree();
-        tree.add(IntStream.range(1, n + 1).toArray());
+        RedBlackTree<Integer> tree = new RedBlackTree<>();
+        add(tree, IntStream.range(1, n + 1).toArray());
+    }
+
+    // add multiple keys at once in an integer tree, stops if a key can't be added
+    public static boolean add(SearchTree<Integer> tree, int... keys) {
+        for (int key : keys)
+            if (!tree.add(key))
+                return false;
+        return true;
     }
 
     private static long getAverageTime(long[] times) {

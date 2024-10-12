@@ -1,26 +1,73 @@
 package oplossing;
 
-import integer.IntegerNode;
-import integer.IntegerTree;
+import opgave.Node;
+import opgave.SearchTree;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class RedBlackTree extends IntegerTree {
+public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
+    private RedBlackNode<E> root;
+    private final HashSet<RedBlackNode<E>> allNodes;
     private int removedAmount;
 
+    public RedBlackTree() {
+        root = null;
+        allNodes = new HashSet<>();
+        removedAmount = 0;
+    }
+
     @Override
-    public boolean add(Integer key) {
+    public int size() {
+        return allNodes.size();
+    }
+
+    @Override
+    public boolean search(E key) {
+        for (RedBlackNode<E> node : allNodes)
+            if (node.getValue().equals(key))
+                return true;
+        return false;
+    }
+
+    // This function serves 2 uses:
+    // To get the search path (like you would expect).
+    // But also if for a key search(key) returns true,
+    // you can use getLast() on the returned list to get the actual Node with that key.
+    public List<RedBlackNode<E>> getSearchPath(E key) {
+        RedBlackNode<E> currentNode = root;
+        List<RedBlackNode<E>> searchPath = new ArrayList<>();
+
+        while (currentNode != null) {
+            searchPath.add(currentNode);
+            if (key.compareTo(currentNode.getValue()) < 0)
+                currentNode = currentNode.getLeft();
+            else if (key.compareTo(currentNode.getValue()) > 0)
+                currentNode = currentNode.getRight();
+            else
+                currentNode = null;
+        }
+
+        return searchPath;
+    }
+
+    @Override
+    public boolean add(E key) {
         if (root == null) {
-            root = new RedBlackNode(key, true);
+            root = new RedBlackNode<>(key, 0);
+            allNodes.add(root);
             return true;
         }
         // node with key exists
         if (search(key))
             return false;
 
-        List<IntegerNode> path = getSearchPath(key);
-        RedBlackNode parent = (RedBlackNode) path.getLast();
+        List<RedBlackNode<E>> path = getSearchPath(key);
+        RedBlackNode<E> parent = path.getLast();
 
         // node with key is a tombstone
         if (parent.getValue().equals(key)) {
@@ -30,40 +77,40 @@ public class RedBlackTree extends IntegerTree {
 
         // no issue
         if (parent.getColour() == 0) {
-            RedBlackNode newNode = new RedBlackNode(key, false);
+            RedBlackNode<E> newNode = new RedBlackNode<>(key, 1);
             allNodes.add(newNode);
-            if (key < parent.getValue())
+            if (key.compareTo(parent.getValue()) < 0)
                 parent.setLeft(newNode);
             else
                 parent.setRight(newNode);
         }
         // issue
         else {
-            RedBlackNode issueSource = new RedBlackNode(key, false);
+            RedBlackNode<E> issueSource = new RedBlackNode<>(key, 1);
             allNodes.add(issueSource);
 
-            RedBlackNode p1 = (RedBlackNode) path.removeLast();
-            RedBlackNode p2 = (RedBlackNode) path.removeLast();
+            RedBlackNode<E> p1 = path.removeLast();
+            RedBlackNode<E> p2 = path.removeLast();
             boolean problem = true;
 
             while (problem) {
                 boolean useOptimized = p2.getLeft() == null || p2.getLeft().getColour() == 0
                         || p2.getRight() == null || p2.getRight().getColour() == 0;
 
-                List<RedBlackNode> nodes = orderNodes(issueSource, p1, p2);
-                RedBlackNode n1 = nodes.getFirst();
-                RedBlackNode n2 = nodes.get(1);
-                RedBlackNode n3 = nodes.get(2);
+                List<RedBlackNode<E>> nodes = orderNodes(issueSource, p1, p2);
+                RedBlackNode<E> n1 = nodes.getFirst();
+                RedBlackNode<E> n2 = nodes.get(1);
+                RedBlackNode<E> n3 = nodes.get(2);
 
                 // set colours
                 if (useOptimized) {
-                    n1.setColour(true);
-                    n2.setColour(false);
-                    n3.setColour(false);
+                    n1.setColour(0);
+                    n2.setColour(1);
+                    n3.setColour(1);
                 } else {
-                    n1.setColour(false);
-                    n2.setColour(true);
-                    n3.setColour(true);
+                    n1.setColour(1);
+                    n2.setColour(0);
+                    n3.setColour(0);
                 }
 
                 // build subtree
@@ -71,8 +118,8 @@ public class RedBlackTree extends IntegerTree {
                     root = n1;
                 }
                 else {
-                    RedBlackNode p = (RedBlackNode) path.getLast();
-                    if (n1.getValue() < p.getValue())
+                    RedBlackNode<E> p = path.getLast();
+                    if (n1.getValue().compareTo(p.getValue()) < 0)
                         p.setLeft(n1);
                     else
                         p.setRight(n1);
@@ -92,16 +139,16 @@ public class RedBlackTree extends IntegerTree {
                     issueSource = nodes.getFirst();
                     // issue is root
                     if (path.isEmpty()) {
-                        issueSource.setColour(true);
+                        issueSource.setColour(0);
                         problem = false;
                     }
                     else {
-                        p1 = (RedBlackNode) path.removeLast();
+                        p1 = path.removeLast();
                         // parent is black
                         if (p1.getColour() == 0)
                             problem = false;
                         else
-                            p2 = (RedBlackNode) path.removeLast();
+                            p2 = path.removeLast();
                     }
                 }
             }
@@ -109,25 +156,25 @@ public class RedBlackTree extends IntegerTree {
         return true;
     }
 
-    private List<RedBlackNode> orderNodes(RedBlackNode n1, RedBlackNode n2, RedBlackNode n3) {
-        if (n1.getValue() < n2.getValue()) {
-            if (n1.getValue() < n3.getValue()) {
+    private List<RedBlackNode<E>> orderNodes(RedBlackNode<E> n1, RedBlackNode<E> n2, RedBlackNode<E> n3) {
+        if (n1.getValue().compareTo(n2.getValue()) < 0) {
+            if (n1.getValue().compareTo(n3.getValue()) < 0) {
                 return Arrays.asList(n2, n1, n3, n1.getLeft(), n1.getRight(), n2.getRight(), n3.getRight());
             }
             return Arrays.asList(n1, n3,n2, n3.getLeft(), n1.getLeft(), n1.getRight(), n2.getRight());
         }
-        if (n1.getValue() < n3.getValue()) {
+        if (n1.getValue().compareTo(n3.getValue()) < 0) {
             return Arrays.asList(n1, n2, n3, n2.getLeft(), n1.getLeft(), n1.getRight(), n3.getRight());
         }
         return Arrays.asList(n2, n3, n1, n3.getLeft(), n2.getLeft(), n1.getLeft(), n1.getRight());
     }
 
     @Override
-    public boolean remove(Integer key) {
+    public boolean remove(E key) {
         // key exists (and thus also isn't a tombstone)
         if (search(key)) {
-            List<IntegerNode> path = getSearchPath(key);
-            RedBlackNode node = (RedBlackNode) path.getLast();
+            List<RedBlackNode<E>> path = getSearchPath(key);
+            RedBlackNode<E> node = path.getLast();
 
             // red leaf or black node with max 1 child and red parent
             if ((node.getColour() == 1 && node.isLeaf())
@@ -159,5 +206,15 @@ public class RedBlackTree extends IntegerTree {
     @Override
     public void rebuild() {
         // TODO
+    }
+
+    @Override
+    public Node<E> root() {
+        return root;
+    }
+
+    @Override
+    public List<E> values() {
+        return allNodes.stream().map(RedBlackNode::getValue).toList();
     }
 }

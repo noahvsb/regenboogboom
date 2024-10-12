@@ -1,12 +1,13 @@
 package visualizer;
 
-import integer.IntegerNode;
-import integer.IntegerTree;
+import opgave.Node;
+import opgave.SearchTree;
+import oplossing.RedBlackTree;
 
 import java.util.*;
 
-// visualize any tree with maximum 6 colours
-public class TreeVisualizer {
+// visualize any integer tree with maximum 6 colours
+public class IntegerTreeVisualizer {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[40m";
     public static final String ANSI_RED = "\u001B[41m";
@@ -17,23 +18,23 @@ public class TreeVisualizer {
     public static final String[] colorIntToString =
             {ANSI_BLACK, ANSI_RED, ANSI_GREEN, ANSI_YELLOW, ANSI_BLUE, ANSI_PURPLE};
 
-    public static void print(IntegerTree tree) {
+    public static void print(SearchTree<Integer> tree) {
         print(tree, 2);
     }
-    public static void print(IntegerTree tree, int digits) {
-        int maxDepth = (int) tree.maxDepth();
+    public static void print(SearchTree<Integer> tree, int digits) {
+        int maxDepth = (int) maxDepth(tree);
         int actualDepth = maxDepth;
 
         String[][] lines = new String[maxDepth + 1][];
         lines[0] = new String[]{nodeToString(tree.root(), digits)};
 
-        List<IntegerNode> lastLevelNodes = Collections.singletonList(tree.root());
+        List<Node<Integer>> lastLevelNodes = Collections.singletonList(tree.root());
 
-        for (int lineLevel = 1; lineLevel <= tree.maxDepth(); lineLevel++) {
+        for (int lineLevel = 1; lineLevel <= maxDepth; lineLevel++) {
 
-            // fill a list with all nodes in this level, which are the children from lastLevelNodes
-            List<IntegerNode> thisLevelNodes = new ArrayList<>();
-            for (IntegerNode node : lastLevelNodes) {
+            // fill a list with all nodes in this level, which are the children of the nodes from the last level
+            List<Node<Integer>> thisLevelNodes = new ArrayList<>();
+            for (Node<Integer> node : lastLevelNodes) {
                 if (node == null) {
                     thisLevelNodes.add(null);
                     thisLevelNodes.add(null);
@@ -68,8 +69,18 @@ public class TreeVisualizer {
         }
     }
 
+    private static long maxDepth(SearchTree<Integer> tree) {
+        if (tree.root() == null)
+            return 0;
+        return 2 * log2(tree.size() + 1) - 1;
+    }
+
+    private static long log2(int n) {
+        return Math.round(Math.log(n) / Math.log(2));
+    }
+
     // convert a node to a colouredString
-    private static String nodeToString(IntegerNode n, int digits) {
+    private static String nodeToString(Node<Integer> n, int digits) {
         if (n == null)
             return " ".repeat(digits);
         String v = n.getValue().toString();
