@@ -61,9 +61,9 @@ public class ColouredNode<E extends Comparable<E>> implements Node<E> {
 
     public int childrenCount() {
         int count = 0;
-        if (getLeft() == null || getLeft().isRemoved())
+        if (getLeft() != null)
             count++;
-        if (getRight() == null || getRight().isRemoved())
+        if (getRight() != null)
             count++;
         return count;
     }

@@ -32,6 +32,14 @@ public class Benchmark {
         return true;
     }
 
+    // remove multiple keys at once in an integer tree, stops if a key can't be removed
+    public static boolean remove(SearchTree<Integer> tree, int... keys) {
+        for (int key : keys)
+            if (!tree.remove(key))
+                return false;
+        return true;
+    }
+
     private static long getAverageTime(long[] times) {
         return Math.round(Arrays.stream(times).average().orElse(-1));
     }
