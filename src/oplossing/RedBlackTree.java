@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
@@ -215,6 +214,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
     @Override
     public List<E> values() {
-        return allNodes.stream().map(RedBlackNode::getValue).toList();
+        return allNodes.stream().map(RedBlackNode::getValue).sorted().toList();
     }
 }
