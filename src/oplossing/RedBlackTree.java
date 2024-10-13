@@ -191,38 +191,48 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                 return true;
             }
 
-            // black node with max 1 child and red parent
-            if (node.getColour() == 0 && node.childrenCount() < 2 && parent.getColour() == 1) {
-                if (node.childrenCount() == 0) {
-                    // TODO: fix
-                    if (key.compareTo(parent.getValue()) < 0)
-                        parent.setLeft(null);
-                    else
-                        parent.setRight(null);
-                    parent.setColour(0);
-                }
-                else {
-                    RedBlackNode<E> left = node.getLeft();
-                    RedBlackNode<E> right = node.getRight();
-                    if (left != null) {
+            // black node with 1 child and red parent
+            if (node.getColour() == 0 && node.childrenCount() == 1 && parent.getColour() == 1) {
+                RedBlackNode<E> left = node.getLeft();
+                RedBlackNode<E> right = node.getRight();
+
+                if (left != null) {
+                    // left child is red
+                    if (left.getColour() == 1) {
                         if (key.compareTo(parent.getValue()) < 0)
                             parent.setLeft(left);
                         else
                             parent.setRight(left);
                         left.setColour(0);
-                    } else {
+                    }
+                    // left child is black
+                    else {
+                        // TODO
+                    }
+                } else {
+                    // right child is red
+                    if (right.getColour() == 1) {
                         if (key.compareTo(parent.getValue()) < 0)
                             parent.setLeft(right);
                         else
                             parent.setRight(right);
                         right.setColour(0);
                     }
+                    // right child is black
+                    else {
+                        // TODO
+                    }
                 }
                 allNodes.remove(node);
                 return true;
             }
 
-            // turn black leaf with black parent into tombstone
+            // black leaf with red parent
+            if (node.getColour() == 0 && node.isRemoved() && parent.getColour() == 1) {
+                // TODO
+            }
+
+            // black leaf with black parent => tombstone
             if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 0) {
                 node.changeRemoveState();
                 allNodes.remove(node);
@@ -244,7 +254,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
     public void rebuild() {
         // idea:
         // if you have n nodes
-        // make a complete binary tree of depth log2(n) rounded down with all black nodes
+        // make a complete binary tree of depth log2(n) ? rounded down with all black nodes
         // then add the remaining nodes as red leafs
         // TODO
     }
