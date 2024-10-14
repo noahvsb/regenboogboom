@@ -83,6 +83,9 @@ public class IntegerTreeVisualizer {
                 System.out.print(node + " ".repeat(inBetweenSpacing));
             System.out.println();
         }
+
+        // extra 2 newlines
+        System.out.print("\n\n");
     }
 
     private static long maxDepth(SearchTree<Integer> tree) {
@@ -100,7 +103,7 @@ public class IntegerTreeVisualizer {
         if (n == null)
             return " ".repeat(digits);
         if (n.isRemoved())
-            return "rm";
+            return colorIntToString[n.getColour()] + "-".repeat(digits) + ANSI_RESET;
         String v = n.getValue().toString();
         v = "0".repeat(digits - v.length()) + v;
         return colorIntToString[n.getColour()] + v + ANSI_RESET;

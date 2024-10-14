@@ -2,6 +2,7 @@ package oplossing;
 
 import opgave.Node;
 import opgave.SearchTree;
+import visualizer.IntegerTreeVisualizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -189,7 +190,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             RedBlackNode<E> node = path.removeLast();
 
             if (!path.isEmpty()) {
-                RedBlackNode<E> parent = path.removeLast();
+                RedBlackNode<E> parent = path.getLast();
 
                 // red leaf => remove safely
                 if (node.getColour() == 1 && node.isLeaf()) {
@@ -268,8 +269,60 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                 return true;
             }
 
-            // intern node => swap with a leaf node and call remove recursive
-            // TODO
+            // intern node => swap with biggest in the left or smallest in the right subtree and call remove recursive
+            RedBlackNode<E> leafParent = node;
+            RedBlackNode<E> leaf = node.getLeft() != null ? node.getLeft() : node.getRight();
+
+            boolean found = false;
+            while (!found) {
+                if (node.getLeft() != null) {
+                    if (leaf.getRight() != null) {
+                        leafParent = leaf;
+                        leaf = leaf.getRight();
+                    } else
+                        found = true;
+                } else {
+                    if (leaf.getLeft() != null) {
+                        leafParent = leaf;
+                        leaf = leaf.getLeft();
+                    } else
+                        found = true;
+                }
+            }
+
+            // perform swap
+            if (path.isEmpty())
+                root = leaf;
+            else {
+                RedBlackNode<E> parent = path.removeLast();
+                if (key.compareTo(parent.getValue()) < 0)
+                    parent.setLeft(leaf);
+                else
+                    parent.setRight(leaf);
+            }
+
+            if (leafParent == node) {
+                if (node.getLeft() != null) {
+                    leaf.setLeft(node);
+                    leaf.setRight(node.getRight());
+                } else {
+                    leaf.setLeft(node.getLeft());
+                    leaf.setRight(node);
+                }
+            } else {
+                leaf.setLeft(node.getLeft());
+                leaf.setRight(node.getRight());
+                leafParent.setRight(node);
+            }
+            int leafColour = leaf.getColour();
+            leaf.setColour(node.getColour());
+
+            node.setLeft(null);
+            node.setRight(null);
+            node.setColour(leafColour);
+
+            // recursion
+            return remove(key);
         }
         return false;
     }

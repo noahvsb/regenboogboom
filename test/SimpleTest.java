@@ -11,10 +11,10 @@ public class SimpleTest {
     public void RedBlackTree() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
-        Assertions.assertTrue(add(tree, IntStream.range(1, 50).toArray()));
+        Assertions.assertTrue(add(tree, IntStream.range(1, 51).toArray()));
         IntegerTreeVisualizer.print(tree);
 
-        Assertions.assertTrue(remove(tree, 2, 1, 7, 8, 5));
+        Assertions.assertTrue(remove(tree, 1, 2, 3, 4));
         IntegerTreeVisualizer.print(tree);
     }
 
