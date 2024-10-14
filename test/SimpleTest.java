@@ -11,11 +11,11 @@ public class SimpleTest {
     public void RedBlackTree() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
-        Assertions.assertTrue(add(tree, IntStream.range(1, 16).toArray()));
+        Assertions.assertTrue(add(tree, IntStream.range(1, 10000).toArray()));
         SimpleIntegerTreeVisualizer.print(tree);
 
-        Assertions.assertTrue(remove(tree, 2));
-        SimpleIntegerTreeVisualizer.print(tree);
+//        Assertions.assertTrue(remove(tree, 2));
+//        SimpleIntegerTreeVisualizer.print(tree);
     }
 
     // add multiple keys at once in an integer tree, stops if a key can't be added

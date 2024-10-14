@@ -193,35 +193,26 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
             // black node with 1 child and red parent
             if (node.getColour() == 0 && node.childrenCount() == 1 && parent.getColour() == 1) {
-                RedBlackNode<E> left = node.getLeft();
-                RedBlackNode<E> right = node.getRight();
+                RedBlackNode<E> child = node.getLeft();
+                if (child == null)
+                    child = node.getRight();
 
-                if (left != null) {
-                    // left child is red
-                    if (left.getColour() == 1) {
-                        if (key.compareTo(parent.getValue()) < 0)
-                            parent.setLeft(left);
-                        else
-                            parent.setRight(left);
-                        left.setColour(0);
-                    }
-                    // left child is black
-                    else {
-                        // TODO
-                    }
-                } else {
-                    // right child is red
-                    if (right.getColour() == 1) {
-                        if (key.compareTo(parent.getValue()) < 0)
-                            parent.setLeft(right);
-                        else
-                            parent.setRight(right);
-                        right.setColour(0);
-                    }
-                    // right child is black
-                    else {
-                        // TODO
-                    }
+                if (key.compareTo(parent.getValue()) < 0)
+                    parent.setLeft(child);
+                else
+                    parent.setRight(child);
+
+                // child is red
+                if (child.getColour() == 1)
+                    child.setColour(0);
+                // child is black
+                else {
+                    parent.setColour(0);
+
+                    if (key.compareTo(parent.getValue()) < 0)
+                        colour1Red(parent.getRight());
+                    else
+                        colour1Red(parent.getLeft());
                 }
                 allNodes.remove(node);
                 return true;
@@ -229,7 +220,16 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
             // black leaf with red parent
             if (node.getColour() == 0 && node.isRemoved() && parent.getColour() == 1) {
-                // TODO
+                if (key.compareTo(parent.getValue()) < 0) {
+                    parent.setLeft(null);
+                    colour1Red(parent.getRight());
+                }
+                else {
+                    parent.setRight(null);
+                    colour1Red(parent.getLeft());
+                }
+                allNodes.remove(node);
+                return true;
             }
 
             // black leaf with black parent => tombstone
@@ -248,6 +248,27 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             // TODO
         }
         return false;
+    }
+
+    // the returned subtreeRoot is the root of a red/black-tree
+    // where the root may be red (the other conditions still apply)
+    // and where in all paths from the subtreeRoot to the null-pointer it has 1 less red than before
+    private boolean colour1Red(RedBlackNode<E> subtreeRoot) {
+        if (subtreeRoot.getColour() == 1 && subtreeRoot.isLeaf())
+            return false;
+        // TODO:
+        //  fix when this option doesn't happen ever in a subtree
+        if (subtreeRoot.getColour() == 0
+                && (subtreeRoot.getLeft() == null || subtreeRoot.getLeft().getColour() == 0)
+                && (subtreeRoot.getRight() == null || subtreeRoot.getRight().getColour() == 0)) {
+            subtreeRoot.setColour(1);
+            return true;
+        }
+        else {
+            colour1Red(subtreeRoot.getLeft());
+            colour1Red(subtreeRoot.getRight());
+            return true;
+        }
     }
 
     @Override
