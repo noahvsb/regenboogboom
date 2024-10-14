@@ -186,75 +186,85 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         // key exists (and thus also isn't a tombstone)
         if (search(key)) {
             List<RedBlackNode<E>> path = getSearchPath(key);
-            RedBlackNode<E> node = path.getLast();
-            RedBlackNode<E> parent = path.get(path.size() - 2);
+            RedBlackNode<E> node = path.removeLast();
 
-            // red leaf => remove safely
-            if (node.getColour() == 1 && node.isLeaf()) {
-                if (key.compareTo(parent.getValue()) < 0)
-                    parent.setLeft(null);
-                else
-                    parent.setRight(null);
-                removeFromSets(node);
-                return true;
-            }
+            if (!path.isEmpty()) {
+                RedBlackNode<E> parent = path.removeLast();
 
-            // black node with 1 child and red parent => remove with changes in the tree
-            if (node.getColour() == 0 && node.childrenCount() == 1 && parent.getColour() == 1) {
-                // grab the child
-                RedBlackNode<E> child = node.getLeft();
-                if (child == null)
-                    child = node.getRight();
-
-                // attach to the parent instead of the node we want to remove
-                if (key.compareTo(parent.getValue()) < 0)
-                    parent.setLeft(child);
-                else
-                    parent.setRight(child);
-
-                // child is red
-                if (child.getColour() == 1)
-                    child.setColour(0);
-                // child is black
-                else {
-                    parent.setColour(0);
-
+                // red leaf => remove safely
+                if (node.getColour() == 1 && node.isLeaf()) {
                     if (key.compareTo(parent.getValue()) < 0)
-                        colourRed(parent.getRight());
+                        parent.setLeft(null);
                     else
+                        parent.setRight(null);
+                    removeFromSets(node);
+                    return true;
+                }
+
+                // black node with 1 child and red parent => remove with changes in the tree
+                if (node.getColour() == 0 && node.childrenCount() == 1 && parent.getColour() == 1) {
+                    // grab the child
+                    RedBlackNode<E> child = node.getLeft();
+                    if (child == null)
+                        child = node.getRight();
+
+                    // attach to the parent instead of the node we want to remove
+                    if (key.compareTo(parent.getValue()) < 0)
+                        parent.setLeft(child);
+                    else
+                        parent.setRight(child);
+
+                    // child is red
+                    if (child.getColour() == 1)
+                        child.setColour(0);
+                        // child is black
+                    else {
+                        parent.setColour(0);
+
+                        if (key.compareTo(parent.getValue()) < 0)
+                            colourRed(parent.getRight());
+                        else
+                            colourRed(parent.getLeft());
+                    }
+                    removeFromSets(node);
+                    return true;
+                }
+
+                // black leaf with red parent => remove with changes in the tree
+                if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 1) {
+                    if (key.compareTo(parent.getValue()) < 0) {
+                        parent.setLeft(null);
+                        parent.setColour(0);
+                        colourRed(parent.getRight());
+                    }
+                    else {
+                        parent.setRight(null);
+                        parent.setColour(0);
                         colourRed(parent.getLeft());
+                    }
+                    removeFromSets(node);
+                    return true;
                 }
-                removeFromSets(node);
-                return true;
+
+                // black leaf with black parent => tombstone
+                if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 0) {
+                    node.changeRemoveState();
+                    removeFromSets(node);
+
+                    removedAmount++;
+                    if (removedAmount > size() / 2) {
+                        removedAmount = 0;
+                        rebuild();
+                    }
+
+                    return true;
+                }
             }
 
-            // black leaf with red parent => remove with changes in the tree
-            if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 1) {
-                if (key.compareTo(parent.getValue()) < 0) {
-                    parent.setLeft(null);
-                    parent.setColour(0);
-                    colourRed(parent.getRight());
-                }
-                else {
-                    parent.setRight(null);
-                    parent.setColour(0);
-                    colourRed(parent.getLeft());
-                }
+            // root, but also a leaf
+            if (path.isEmpty() && node.isLeaf()) {
+                root = null;
                 removeFromSets(node);
-                return true;
-            }
-
-            // black leaf with black parent => tombstone
-            if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 0) {
-                node.changeRemoveState();
-                removeFromSets(node);
-
-                removedAmount++;
-                if (removedAmount > size() / 2) {
-                    removedAmount = 0;
-                    rebuild();
-                }
-
                 return true;
             }
 
