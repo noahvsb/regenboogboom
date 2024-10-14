@@ -94,11 +94,18 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
         RedBlackNode<E> p1 = path.removeLast();
         RedBlackNode<E> p2 = path.removeLast();
+        fix2RedsProblem(path, issueSource, p1, p2, true);
+
+        return true;
+    }
+
+    // make sure the issueSource, p1 and p2 nodes are removed from the path
+    private void fix2RedsProblem(List<RedBlackNode<E>> path, RedBlackNode<E> issueSource, RedBlackNode<E> p1, RedBlackNode<E> p2, boolean allowOptimized) {
         boolean problem = true;
 
         while (problem) {
-            boolean useOptimized = p2.getLeft() == null || p2.getLeft().getColour() == 0
-                    || p2.getRight() == null || p2.getRight().getColour() == 0;
+            boolean useOptimized = allowOptimized && (p2.getLeft() == null || p2.getLeft().getColour() == 0
+                    || p2.getRight() == null || p2.getRight().getColour() == 0);
 
             List<RedBlackNode<E>> nodes = orderNodes(issueSource, p1, p2);
             RedBlackNode<E> n1 = nodes.getFirst();
@@ -119,8 +126,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             // build subtree
             if (path.isEmpty()) {
                 root = n1;
-            }
-            else {
+            } else {
                 RedBlackNode<E> p = path.getLast();
                 if (n1.getValue().compareTo(p.getValue()) < 0)
                     p.setLeft(n1);
@@ -145,8 +151,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                 if (path.isEmpty()) {
                     issueSource.setColour(0);
                     problem = false;
-                }
-                else {
+                } else {
                     p1 = path.removeLast();
                     if (p1.getColour() == 0)
                         problem = false;
@@ -155,7 +160,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                 }
             }
         }
-        return true;
     }
 
     // get 3 nodes and order them + their children in the following way:
@@ -181,7 +185,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             RedBlackNode<E> node = path.getLast();
             RedBlackNode<E> parent = path.get(path.size() - 2);
 
-            // red leaf
+            // red leaf => remove safely
             if (node.getColour() == 1 && node.isLeaf()) {
                 if (key.compareTo(parent.getValue()) < 0)
                     parent.setLeft(null);
@@ -191,12 +195,14 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                 return true;
             }
 
-            // black node with 1 child and red parent
+            // black node with 1 child and red parent => remove with changes in the tree
             if (node.getColour() == 0 && node.childrenCount() == 1 && parent.getColour() == 1) {
+                // grab the child
                 RedBlackNode<E> child = node.getLeft();
                 if (child == null)
                     child = node.getRight();
 
+                // attach to the parent instead of the node we want to remove
                 if (key.compareTo(parent.getValue()) < 0)
                     parent.setLeft(child);
                 else
@@ -210,23 +216,25 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                     parent.setColour(0);
 
                     if (key.compareTo(parent.getValue()) < 0)
-                        colour1Red(parent.getRight());
+                        colourRedAndFixPossibleProblems(parent.getRight());
                     else
-                        colour1Red(parent.getLeft());
+                        colourRedAndFixPossibleProblems(parent.getLeft());
                 }
                 allNodes.remove(node);
                 return true;
             }
 
-            // black leaf with red parent
-            if (node.getColour() == 0 && node.isRemoved() && parent.getColour() == 1) {
+            // black leaf with red parent => remove with changes in the tree
+            if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 1) {
                 if (key.compareTo(parent.getValue()) < 0) {
                     parent.setLeft(null);
-                    colour1Red(parent.getRight());
+                    parent.setColour(0);
+                    colourRedAndFixPossibleProblems(parent.getRight());
                 }
                 else {
                     parent.setRight(null);
-                    colour1Red(parent.getLeft());
+                    parent.setColour(0);
+                    colourRedAndFixPossibleProblems(parent.getLeft());
                 }
                 allNodes.remove(node);
                 return true;
@@ -236,38 +244,37 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 0) {
                 node.changeRemoveState();
                 allNodes.remove(node);
+
                 removedAmount++;
                 if (removedAmount > size() / 2) {
                     removedAmount = 0;
                     rebuild();
                 }
+
                 return true;
             }
 
-            // intern node
+            // intern node => swap with a leaf node and call remove recursive
             // TODO
         }
         return false;
     }
 
-    // the returned subtreeRoot is the root of a red/black-tree
-    // where the root may be red (the other conditions still apply)
-    // and where in all paths from the subtreeRoot to the null-pointer it has 1 less red than before
-    private boolean colour1Red(RedBlackNode<E> subtreeRoot) {
-        if (subtreeRoot.getColour() == 1 && subtreeRoot.isLeaf())
-            return false;
-        // TODO:
-        //  fix when this option doesn't happen ever in a subtree
-        if (subtreeRoot.getColour() == 0
-                && (subtreeRoot.getLeft() == null || subtreeRoot.getLeft().getColour() == 0)
-                && (subtreeRoot.getRight() == null || subtreeRoot.getRight().getColour() == 0)) {
-            subtreeRoot.setColour(1);
-            return true;
-        }
-        else {
-            colour1Red(subtreeRoot.getLeft());
-            colour1Red(subtreeRoot.getRight());
-            return true;
+    // colour the subtreeRoot red and if a problem occurs fix it in the same way the 2 reds problem is fixed in add
+    private void colourRedAndFixPossibleProblems(RedBlackNode<E> subtreeRoot) {
+        subtreeRoot.setColour(1);
+
+        RedBlackNode<E> child = subtreeRoot.getLeft();
+        if (child == null || child.getColour() == 0)
+            child = subtreeRoot.getRight();
+
+        // problem occurs
+        if (child != null && child.getColour() == 1) {
+            List<RedBlackNode<E>> path = getSearchPath(child.getValue());
+            RedBlackNode<E> issueSource = path.removeLast();
+            RedBlackNode<E> p1 = path.removeLast();
+            RedBlackNode<E> p2 = path.removeLast();
+            fix2RedsProblem(path, issueSource, p1, p2, false);
         }
     }
 
