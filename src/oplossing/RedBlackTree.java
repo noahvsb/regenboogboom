@@ -294,6 +294,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
     @Override
     public List<E> values() {
-        return allNodes.stream().map(RedBlackNode::getValue).toList();
+        return allNodes.stream().map(RedBlackNode::getValue).sorted().toList();
     }
 }
