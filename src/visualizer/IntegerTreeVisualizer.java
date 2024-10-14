@@ -38,54 +38,58 @@ public class IntegerTreeVisualizer {
     }
 
     public static void print(SearchTree<Integer> tree, int digits) {
-        int maxDepth = (int) maxDepth(tree);
-        int actualDepth = maxDepth;
+        if (tree.size() == 0) {
+            System.out.println("null");
+        } else {
+            int maxDepth = (int) maxDepth(tree);
+            int actualDepth = maxDepth;
 
-        String[][] lines = new String[maxDepth + 1][];
-        lines[0] = new String[]{nodeToString(tree.root(), digits)};
+            String[][] lines = new String[maxDepth + 1][];
+            lines[0] = new String[]{nodeToString(tree.root(), digits)};
 
-        List<Node<Integer>> lastLevelNodes = Collections.singletonList(tree.root());
+            List<Node<Integer>> lastLevelNodes = Collections.singletonList(tree.root());
 
-        for (int lineLevel = 1; lineLevel <= maxDepth; lineLevel++) {
+            for (int lineLevel = 1; lineLevel <= maxDepth; lineLevel++) {
 
-            // fill a list with all nodes in this level, which are the children of the nodes from the last level
-            List<Node<Integer>> thisLevelNodes = new ArrayList<>();
-            for (Node<Integer> node : lastLevelNodes) {
-                if (node == null) {
-                    thisLevelNodes.add(null);
-                    thisLevelNodes.add(null);
-                } else {
-                    thisLevelNodes.add(node.getLeft());
-                    thisLevelNodes.add(node.getRight());
+                // fill a list with all nodes in this level, which are the children of the nodes from the last level
+                List<Node<Integer>> thisLevelNodes = new ArrayList<>();
+                for (Node<Integer> node : lastLevelNodes) {
+                    if (node == null) {
+                        thisLevelNodes.add(null);
+                        thisLevelNodes.add(null);
+                    } else {
+                        thisLevelNodes.add(node.getLeft());
+                        thisLevelNodes.add(node.getRight());
+                    }
                 }
+
+                // create the string array using all nodes on this level and fill it unless all nodes are null
+                lines[lineLevel] = new String[thisLevelNodes.size()];
+                if (thisLevelNodes.stream().filter(Objects::nonNull).toList().isEmpty())
+                    actualDepth--;
+                else
+                    for (int i = 0; i < thisLevelNodes.size(); i++)
+                        lines[lineLevel][i] = nodeToString(thisLevelNodes.get(i), digits);
+
+                lastLevelNodes = thisLevelNodes;
             }
 
-            // create the string array using all nodes on this level and fill it unless all nodes are null
-            lines[lineLevel] = new String[thisLevelNodes.size()];
-            if (thisLevelNodes.stream().filter(Objects::nonNull).toList().isEmpty())
-                actualDepth--;
-            else
-                for (int i = 0; i < thisLevelNodes.size(); i++)
-                    lines[lineLevel][i] = nodeToString(thisLevelNodes.get(i), digits);
+            // print out all lines with spacing
+            for (int i = 0; i <= actualDepth; i++) {
+                String[] line = lines[i];
 
-            lastLevelNodes = thisLevelNodes;
+                int startSpacing = getSpacing(i + 1, actualDepth, digits);
+                int inBetweenSpacing = getSpacing(i, actualDepth, digits);
+                System.out.print(" ".repeat(startSpacing));
+
+                for (String node : line)
+                    System.out.print(node + " ".repeat(inBetweenSpacing));
+                System.out.println();
+            }
+
+            // extra 2 newlines
+            System.out.print("\n\n");
         }
-
-        // print out all lines with spacing
-        for (int i = 0; i <= actualDepth; i++) {
-            String[] line = lines[i];
-
-            int startSpacing = getSpacing(i + 1, actualDepth, digits);
-            int inBetweenSpacing = getSpacing(i, actualDepth, digits);
-            System.out.print(" ".repeat(startSpacing));
-
-            for (String node : line)
-                System.out.print(node + " ".repeat(inBetweenSpacing));
-            System.out.println();
-        }
-
-        // extra 2 newlines
-        System.out.print("\n\n");
     }
 
     private static long maxDepth(SearchTree<Integer> tree) {

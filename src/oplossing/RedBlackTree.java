@@ -192,74 +192,8 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             if (!path.isEmpty()) {
                 RedBlackNode<E> parent = path.getLast();
 
-                // red leaf => remove safely
-                if (node.getColour() == 1 && node.isLeaf()) {
-                    if (key.compareTo(parent.getValue()) < 0)
-                        parent.setLeft(null);
-                    else
-                        parent.setRight(null);
-                    removeFromSets(node);
+                if (removeSpecialCases(node, parent))
                     return true;
-                }
-
-                // black node with 1 child and red parent => remove with changes in the tree
-                if (node.getColour() == 0 && node.childrenCount() == 1 && parent.getColour() == 1) {
-                    // grab the child
-                    RedBlackNode<E> child = node.getLeft();
-                    if (child == null)
-                        child = node.getRight();
-
-                    // attach to the parent instead of the node we want to remove
-                    if (key.compareTo(parent.getValue()) < 0)
-                        parent.setLeft(child);
-                    else
-                        parent.setRight(child);
-
-                    // child is red
-                    if (child.getColour() == 1)
-                        child.setColour(0);
-                        // child is black
-                    else {
-                        parent.setColour(0);
-
-                        if (key.compareTo(parent.getValue()) < 0)
-                            colourRed(parent.getRight());
-                        else
-                            colourRed(parent.getLeft());
-                    }
-                    removeFromSets(node);
-                    return true;
-                }
-
-                // black leaf with red parent => remove with changes in the tree
-                if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 1) {
-                    if (key.compareTo(parent.getValue()) < 0) {
-                        parent.setLeft(null);
-                        parent.setColour(0);
-                        colourRed(parent.getRight());
-                    }
-                    else {
-                        parent.setRight(null);
-                        parent.setColour(0);
-                        colourRed(parent.getLeft());
-                    }
-                    removeFromSets(node);
-                    return true;
-                }
-
-                // black leaf with black parent => tombstone
-                if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 0) {
-                    node.changeRemoveState();
-                    removeFromSets(node);
-
-                    removedAmount++;
-                    if (removedAmount > size() / 2) {
-                        removedAmount = 0;
-                        rebuild();
-                    }
-
-                    return true;
-                }
             }
 
             // root, but also a leaf
@@ -269,7 +203,9 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                 return true;
             }
 
-            // intern node => swap with biggest in the left or smallest in the right subtree and call remove recursive
+            // intern node => swap with biggest in the left or smallest in the right subtree and call remove on the special cases
+
+            // get the necessary nodes to perform the swap
             RedBlackNode<E> leafParent = node;
             RedBlackNode<E> leaf = node.getLeft() != null ? node.getLeft() : node.getRight();
 
@@ -291,6 +227,8 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             }
 
             // perform swap
+
+            // set the leaf as a child of the parent of the node
             if (path.isEmpty())
                 root = leaf;
             else {
@@ -301,6 +239,9 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                     parent.setRight(leaf);
             }
 
+            // set the children of the leaf to the children of the node
+            // and set the node as a child of the leafParent
+            // with a special case when the node is the leafParent
             if (leafParent == node) {
                 if (node.getLeft() != null) {
                     leaf.setLeft(node);
@@ -312,18 +253,95 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             } else {
                 leaf.setLeft(node.getLeft());
                 leaf.setRight(node.getRight());
-                leafParent.setRight(node);
+                if (leaf.getValue().compareTo(leafParent.getValue()) < 0)
+                    leafParent.setLeft(node);
+                else
+                    leafParent.setRight(node);
             }
-            int leafColour = leaf.getColour();
-            leaf.setColour(node.getColour());
 
+            // remove all children from the node
             node.setLeft(null);
             node.setRight(null);
+
+            // change colours
+            int leafColour = leaf.getColour();
+            leaf.setColour(node.getColour());
             node.setColour(leafColour);
 
             // recursion
-            return remove(key);
+            return removeSpecialCases(node, leafParent != node ? leafParent : leaf);
         }
+        return false;
+    }
+
+    private boolean removeSpecialCases(RedBlackNode<E> node, RedBlackNode<E> parent) {
+        // red leaf => remove safely
+        if (node.getColour() == 1 && node.isLeaf()) {
+            if (parent.getLeft() == node)
+                parent.setLeft(null);
+            else
+                parent.setRight(null);
+            removeFromSets(node);
+            return true;
+        }
+
+        // black node with 1 child and red parent => remove with changes in the tree
+        if (node.getColour() == 0 && node.childrenCount() == 1 && parent.getColour() == 1) {
+            // grab the child
+            RedBlackNode<E> child = node.getLeft();
+            if (child == null)
+                child = node.getRight();
+
+            // attach to the parent instead of the node we want to remove
+            if (parent.getLeft() == node)
+                parent.setLeft(child);
+            else
+                parent.setRight(child);
+
+            // child is red
+            if (child.getColour() == 1)
+                child.setColour(0);
+                // child is black
+            else {
+                parent.setColour(0);
+
+                if (parent.getLeft() == node)
+                    colourRed(parent.getRight());
+                else
+                    colourRed(parent.getLeft());
+            }
+            removeFromSets(node);
+            return true;
+        }
+
+        // black leaf with red parent => remove with changes in the tree
+        if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 1) {
+            if (parent.getLeft() == node) {
+                parent.setLeft(null);
+                parent.setColour(0);
+                colourRed(parent.getRight());
+            }
+            else {
+                parent.setRight(null);
+                parent.setColour(0);
+                colourRed(parent.getLeft());
+            }
+            removeFromSets(node);
+            return true;
+        }
+
+        // black leaf with black parent => tombstone
+        if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 0) {
+            node.changeRemoveState();
+            removeFromSets(node);
+            removedAmount++;
+            if (removedAmount > size() / 2) {
+                removedAmount = 0;
+                rebuild();
+            }
+            return true;
+        }
+
         return false;
     }
 
