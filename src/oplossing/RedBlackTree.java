@@ -11,26 +11,25 @@ import java.util.List;
 public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
     private RedBlackNode<E> root;
-    private final HashSet<RedBlackNode<E>> allNodes;
+    private final HashSet<RedBlackNode<E>> nodes;
+    private final HashSet<E> values;
     private int removedAmount;
 
     public RedBlackTree() {
         root = null;
-        allNodes = new HashSet<>();
+        nodes = new HashSet<>();
+        values = new HashSet<>();
         removedAmount = 0;
     }
 
     @Override
     public int size() {
-        return allNodes.size();
+        return nodes.size();
     }
 
     @Override
     public boolean search(E key) {
-        for (RedBlackNode<E> node : allNodes)
-            if (node.getValue().equals(key))
-                return true;
-        return false;
+        return values.contains(key);
     }
 
     // This function serves 2 uses:
@@ -63,7 +62,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         // tree doesn't have a root yet
         if (root == null) {
             root = new RedBlackNode<>(key, 0);
-            allNodes.add(root);
+            addToSets(root);
             return true;
         }
 
@@ -73,29 +72,29 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         // node with the key is a tombstone
         if (parent.getValue().equals(key)) {
             parent.changeRemoveState();
-            allNodes.add(parent);
+            addToSets(parent);
             return true;
         }
 
         // no issue
         if (parent.getColour() == 0) {
             RedBlackNode<E> newNode = new RedBlackNode<>(key, 1);
-            allNodes.add(newNode);
             if (key.compareTo(parent.getValue()) < 0)
                 parent.setLeft(newNode);
             else
                 parent.setRight(newNode);
+            addToSets(newNode);
             return true;
         }
 
         // issue
         RedBlackNode<E> issueSource = new RedBlackNode<>(key, 1);
-        allNodes.add(issueSource);
-
         RedBlackNode<E> p1 = path.removeLast();
         RedBlackNode<E> p2 = path.removeLast();
+
         fix2RedsProblem(path, issueSource, p1, p2, true);
 
+        addToSets(issueSource);
         return true;
     }
 
@@ -177,6 +176,11 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         return Arrays.asList(n2, n3, n1, n3.getLeft(), n2.getLeft(), n1.getLeft(), n1.getRight());
     }
 
+    private void addToSets(RedBlackNode<E> node) {
+        nodes.add(node);
+        values.add(node.getValue());
+    }
+
     @Override
     public boolean remove(E key) {
         // key exists (and thus also isn't a tombstone)
@@ -191,7 +195,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                     parent.setLeft(null);
                 else
                     parent.setRight(null);
-                allNodes.remove(node);
+                removeFromSets(node);
                 return true;
             }
 
@@ -216,11 +220,11 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                     parent.setColour(0);
 
                     if (key.compareTo(parent.getValue()) < 0)
-                        colourRedAndFixPossibleProblems(parent.getRight());
+                        colourRed(parent.getRight());
                     else
-                        colourRedAndFixPossibleProblems(parent.getLeft());
+                        colourRed(parent.getLeft());
                 }
-                allNodes.remove(node);
+                removeFromSets(node);
                 return true;
             }
 
@@ -229,21 +233,21 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                 if (key.compareTo(parent.getValue()) < 0) {
                     parent.setLeft(null);
                     parent.setColour(0);
-                    colourRedAndFixPossibleProblems(parent.getRight());
+                    colourRed(parent.getRight());
                 }
                 else {
                     parent.setRight(null);
                     parent.setColour(0);
-                    colourRedAndFixPossibleProblems(parent.getLeft());
+                    colourRed(parent.getLeft());
                 }
-                allNodes.remove(node);
+                removeFromSets(node);
                 return true;
             }
 
             // black leaf with black parent => tombstone
             if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 0) {
                 node.changeRemoveState();
-                allNodes.remove(node);
+                removeFromSets(node);
 
                 removedAmount++;
                 if (removedAmount > size() / 2) {
@@ -260,13 +264,12 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         return false;
     }
 
-    // colour the subtreeRoot red and if a problem occurs fix it in the same way the 2 reds problem is fixed in add
-    private void colourRedAndFixPossibleProblems(RedBlackNode<E> subtreeRoot) {
-        subtreeRoot.setColour(1);
+    private void colourRed(RedBlackNode<E> node) {
+        node.setColour(1);
 
-        RedBlackNode<E> child = subtreeRoot.getLeft();
+        RedBlackNode<E> child = node.getLeft();
         if (child == null || child.getColour() == 0)
-            child = subtreeRoot.getRight();
+            child = node.getRight();
 
         // problem occurs
         if (child != null && child.getColour() == 1) {
@@ -276,6 +279,11 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             RedBlackNode<E> p2 = path.removeLast();
             fix2RedsProblem(path, issueSource, p1, p2, false);
         }
+    }
+
+    public void removeFromSets(RedBlackNode<E> node) {
+        nodes.remove(node);
+        values.remove(node.getValue());
     }
 
     @Override
@@ -294,6 +302,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
     @Override
     public List<E> values() {
-        return allNodes.stream().map(RedBlackNode::getValue).sorted().toList();
+        return values.stream().sorted().toList();
     }
 }

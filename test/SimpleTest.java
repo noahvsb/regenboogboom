@@ -2,7 +2,7 @@ import opgave.SearchTree;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import oplossing.RedBlackTree;
-import visualizer.SimpleIntegerTreeVisualizer;
+import visualizer.IntegerTreeVisualizer;
 
 import java.util.stream.IntStream;
 
@@ -12,10 +12,10 @@ public class SimpleTest {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
         Assertions.assertTrue(add(tree, IntStream.range(1, 50).toArray()));
-        SimpleIntegerTreeVisualizer.print(tree);
+        IntegerTreeVisualizer.print(tree);
 
-        Assertions.assertTrue(remove(tree, IntStream.range(1, 50).toArray()));
-        SimpleIntegerTreeVisualizer.print(tree);
+        Assertions.assertTrue(remove(tree, 2, 1, 7, 8, 5));
+        IntegerTreeVisualizer.print(tree);
     }
 
     // add multiple keys at once in an integer tree, stops if a key can't be added

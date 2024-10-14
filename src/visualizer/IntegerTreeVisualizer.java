@@ -7,7 +7,7 @@ import java.util.*;
 
 // visualize any integer tree
 // with maximum 6 colours
-public class SimpleIntegerTreeVisualizer {
+public class IntegerTreeVisualizer {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[0;30m";
     public static final String ANSI_BLACK_BG = "\u001B[40m";
