@@ -16,7 +16,9 @@ public class SimpleTest {
         Assertions.assertTrue(add(tree, IntStream.range(1, a + 1).toArray()));
         IntegerTreeVisualizer.print(tree);
 
-        int r = 1000;
+        Assertions.assertEquals(a, tree.size());
+
+        int r = 900;
 
         Assertions.assertTrue(remove(tree, IntStream.range(1, r + 1).toArray()));
         IntegerTreeVisualizer.print(tree);

@@ -2,7 +2,6 @@ package oplossing;
 
 import opgave.Node;
 import opgave.SearchTree;
-import visualizer.IntegerTreeVisualizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -374,6 +373,15 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         // make a complete binary tree of depth log2(n) ? rounded down with all black nodes
         // then add the remaining nodes as red leafs
         // TODO
+
+        List<E> keys = values();
+
+        root = null;
+        nodes.clear();
+        values.clear();
+
+        for (E key : keys)
+            add(key);
     }
 
     @Override
