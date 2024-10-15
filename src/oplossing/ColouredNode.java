@@ -3,7 +3,7 @@ package oplossing;
 import opgave.Node;
 
 public class ColouredNode<E extends Comparable<E>> implements Node<E> {
-    private final E key;
+    private E key;
     protected int colour;
     private boolean isRemoved;
     private RedBlackNode<E> leftChild;
@@ -21,6 +21,10 @@ public class ColouredNode<E extends Comparable<E>> implements Node<E> {
     @Override
     public E getValue() {
         return key;
+    }
+
+    public void setValue(E key) {
+        this.key = key;
     }
 
     @Override

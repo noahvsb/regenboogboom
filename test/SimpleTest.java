@@ -8,50 +8,61 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 public class SimpleTest {
+
+    private static final int SEED = 123;
+
     @Test
     public void RedBlackTree() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
-        int a = 30;
+        int a = 1000;
 
         Assertions.assertTrue(add(tree, generateKeys(a, true)));
         IntegerTreeVisualizer.print(tree);
 
         Assertions.assertEquals(a, tree.size());
 
-        int r = 25;
+        int r = 900;
 
         Assertions.assertTrue(remove(tree, generateKeys(r, true)));
+        IntegerTreeVisualizer.print(tree);
+
+        Assertions.assertTrue(tree.remove(26));
         IntegerTreeVisualizer.print(tree);
 
         Assertions.assertEquals(a - r, tree.size());
     }
 
+    // generate keys from 1 to n (inclusive)
     public int[] generateKeys(int n, boolean shuffled) {
         List<Integer> keysList = new ArrayList<>();
         for (int i = 1; i <= n; i++)
             keysList.add(i);
         if (shuffled)
-            Collections.shuffle(keysList);
+            Collections.shuffle(keysList, new Random(SEED));
         return keysList.stream().mapToInt(i -> i).toArray();
     }
 
     // add multiple keys at once in an integer tree, stops if a key can't be added
     public boolean add(SearchTree<Integer> tree, int... keys) {
         for (int key : keys)
-            if (!tree.add(key))
+            if (!tree.add(key)) {
+                System.err.println("Adding " + key + " failed");
                 return false;
+            }
         return true;
     }
 
     // remove multiple keys at once in an integer tree, stops if a key can't be removed
     public boolean remove(SearchTree<Integer> tree, int... keys) {
-        for (int key : keys)
-            if (!tree.remove(key))
+        for (int key : keys) {
+            if (!tree.remove(key)) {
+                System.err.println("Removal of " + key + " failed");
                 return false;
+            }
+        }
         return true;
     }
 }

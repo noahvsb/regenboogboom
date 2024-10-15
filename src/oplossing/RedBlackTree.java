@@ -187,88 +187,17 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         if (search(key)) {
             List<RedBlackNode<E>> path = getSearchPath(key);
             RedBlackNode<E> node = path.removeLast();
+            RedBlackNode<E> parent = path.isEmpty() ? null : path.getLast();
 
-            if (!path.isEmpty()) {
-                RedBlackNode<E> parent = path.getLast();
-
-                if (removeSpecialCases(node, parent))
-                    return true;
-            }
+            if (removeSpecialCases(node, parent))
+                return true;
 
             // root, but also a leaf
-            if (path.isEmpty() && node.isLeaf()) {
+            if (node.isLeaf()) {
                 root = null;
                 removeFromSets(node);
                 return true;
             }
-
-            // intern node => swap with biggest in the left or smallest in the right subtree and call remove on the special cases
-
-            // get the necessary nodes to perform the swap
-            RedBlackNode<E> leafParent = node;
-            RedBlackNode<E> leaf = node.getLeft() != null ? node.getLeft() : node.getRight();
-
-            boolean found = false;
-            while (!found) {
-                if (node.getLeft() != null) {
-                    if (leaf.getRight() != null) {
-                        leafParent = leaf;
-                        leaf = leaf.getRight();
-                    } else
-                        found = true;
-                } else {
-                    if (leaf.getLeft() != null) {
-                        leafParent = leaf;
-                        leaf = leaf.getLeft();
-                    } else
-                        found = true;
-                }
-            }
-
-            // perform swap
-
-            // set the leaf as a child of the parent of the node
-            if (path.isEmpty())
-                root = leaf;
-            else {
-                RedBlackNode<E> parent = path.removeLast();
-                if (key.compareTo(parent.getValue()) < 0)
-                    parent.setLeft(leaf);
-                else
-                    parent.setRight(leaf);
-            }
-
-            // set the children of the leaf to the children of the node
-            // and set the node as a child of the leafParent
-            // with a special case when the node is the leafParent
-            if (leafParent == node) {
-                if (node.getLeft() != null) {
-                    leaf.setLeft(node);
-                    leaf.setRight(node.getRight());
-                } else {
-                    leaf.setLeft(node.getLeft());
-                    leaf.setRight(node);
-                }
-            } else {
-                leaf.setLeft(node.getLeft());
-                leaf.setRight(node.getRight());
-                if (leaf.getValue().compareTo(leafParent.getValue()) < 0)
-                    leafParent.setLeft(node);
-                else
-                    leafParent.setRight(node);
-            }
-
-            // remove all children from the node
-            node.setLeft(null);
-            node.setRight(null);
-
-            // change colours
-            int leafColour = leaf.getColour();
-            leaf.setColour(node.getColour());
-            node.setColour(leafColour);
-
-            // recursion
-            return removeSpecialCases(node, leafParent != node ? leafParent : leaf);
         }
         return false;
     }
@@ -341,7 +270,42 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             return true;
         }
 
-        return false;
+        // intern node => swap with biggest in the left or smallest in the right subtree and call remove on the special cases
+
+        // get the necessary nodes to perform the swap
+        RedBlackNode<E> swapNodeParent = node;
+        RedBlackNode<E> swapNode = node.getLeft() != null ? node.getLeft() : node.getRight();
+
+        boolean found = false;
+        while (!found) {
+            if (node.getLeft() != null) {
+                if (swapNode.getRight() != null) {
+                    swapNodeParent = swapNode;
+                    swapNode = swapNode.getRight();
+                } else
+                    found = true;
+            } else {
+                if (swapNode.getLeft() != null) {
+                    swapNodeParent = swapNode;
+                    swapNode = swapNode.getLeft();
+                } else
+                    found = true;
+            }
+        }
+
+        // perform swap
+        E key = node.getValue();
+        node.setValue(swapNode.getValue());
+        swapNode.setValue(key);
+
+        // if swapNode was removed, make sure it still is
+        if (swapNode.isRemoved()) {
+            node.changeRemoveState();
+            swapNode.changeRemoveState();
+        }
+
+        // recursion
+        return removeSpecialCases(swapNode, swapNodeParent != swapNode ? swapNodeParent : node);
     }
 
     private void colourRed(RedBlackNode<E> node) {

@@ -1,12 +1,11 @@
 import opgave.SearchTree;
 import oplossing.RedBlackTree;
 
-import java.util.Arrays;
-import java.util.stream.IntStream;
+import java.util.*;
 
 public class Benchmark {
     public static void main(String[] args) {
-        int t = 10;
+        int t = 3;
         int n = 1000000;
 
         // RED/BLACK TREE
@@ -15,8 +14,9 @@ public class Benchmark {
         // add n nodes
         long[] times = new long[t];
         for (int i = 0; i < times.length; i++) {
+            int[] keys = generateKeys(n, true);
             long start = System.currentTimeMillis();
-            redBlackTreeAdd(n);
+            redBlackTreeAdd(keys);
             long stop = System.currentTimeMillis();
             times[i] = stop - start;
         }
@@ -26,8 +26,9 @@ public class Benchmark {
         // remove n nodes
         times = new long[t];
         for (int i = 0; i < times.length; i++) {
+            int[] keys = generateKeys(n, true);
             long start = System.currentTimeMillis();
-            redBlackTreeAddThenRemove(n);
+            redBlackTreeAddThenRemove(keys);
             long stop = System.currentTimeMillis();
             times[i] = stop - start;
         }
@@ -37,18 +38,28 @@ public class Benchmark {
         // RAINBOW TREE
     }
 
-    private static void redBlackTreeAdd(int n) {
+    private static void redBlackTreeAdd(int... keys) {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
-        if (!add(tree, IntStream.range(1, n + 1).toArray()))
+        if (!add(tree,keys))
             System.err.println("Something went wrong");
     }
 
-    private static void redBlackTreeAddThenRemove(int n) {
+    private static void redBlackTreeAddThenRemove(int... keys) {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
-        if (!add(tree, IntStream.range(1, n + 1).toArray()))
+        if (!add(tree, keys))
             System.err.println("Something went wrong");
-        if (!remove(tree, IntStream.range(1, n + 1).toArray()))
+        if (!remove(tree, keys))
             System.err.println("Something went wrong");
+    }
+
+    // generate keys from 1 to n (inclusive)
+    public static int[] generateKeys(int n, boolean shuffled) {
+        List<Integer> keysList = new ArrayList<>();
+        for (int i = 1; i <= n; i++)
+            keysList.add(i);
+        if (shuffled)
+            Collections.shuffle(keysList);
+        return keysList.stream().mapToInt(i -> i).toArray();
     }
 
     // add multiple keys at once in an integer tree, stops if a key can't be added
