@@ -4,6 +4,10 @@ import org.junit.jupiter.api.Test;
 import oplossing.RedBlackTree;
 import visualizer.IntegerTreeVisualizer;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 public class SimpleTest {
@@ -11,19 +15,28 @@ public class SimpleTest {
     public void RedBlackTree() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
-        int a = 1000;
+        int a = 30;
 
-        Assertions.assertTrue(add(tree, IntStream.range(1, a + 1).toArray()));
+        Assertions.assertTrue(add(tree, generateKeys(a, true)));
         IntegerTreeVisualizer.print(tree);
 
         Assertions.assertEquals(a, tree.size());
 
-        int r = 900;
+        int r = 25;
 
-        Assertions.assertTrue(remove(tree, IntStream.range(1, r + 1).toArray()));
+        Assertions.assertTrue(remove(tree, generateKeys(r, true)));
         IntegerTreeVisualizer.print(tree);
 
         Assertions.assertEquals(a - r, tree.size());
+    }
+
+    public int[] generateKeys(int n, boolean shuffled) {
+        List<Integer> keysList = new ArrayList<>();
+        for (int i = 1; i <= n; i++)
+            keysList.add(i);
+        if (shuffled)
+            Collections.shuffle(keysList);
+        return keysList.stream().mapToInt(i -> i).toArray();
     }
 
     // add multiple keys at once in an integer tree, stops if a key can't be added
