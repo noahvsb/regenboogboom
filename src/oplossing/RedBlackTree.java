@@ -60,7 +60,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         // tree doesn't have a root yet
         if (root == null) {
             root = new RedBlackNode<>(key, 0);
-            values.add(root.getValue());;
+            values.add(root.getValue());
             return true;
         }
 
@@ -203,9 +203,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         // black node with 1 child and red parent => remove with changes in the tree
         if (node.getColour() == 0 && node.childrenCount() == 1 && parent != null && parent.getColour() == 1) {
             // grab the child
-            RedBlackNode<E> child = node.getLeft();
-            if (child == null)
-                child = node.getRight();
+            RedBlackNode<E> child = node.getLeft() != null ? node.getLeft() : node.getRight();
 
             // attach to the parent instead of the node we want to remove
             if (parent.getLeft() == node)
@@ -213,24 +211,17 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             else
                 parent.setRight(child);
 
-            // child is red
-            if (child.getColour() == 1)
-                child.setColour(0);
-                // child is black
-            else {
-                parent.setColour(0);
+            // set child's colour to black (child will always be red, otherwise one of the conditions isn't met)
+            child.setColour(0);
 
-                if (parent.getLeft() == node)
-                    colourRed(parent.getRight());
-                else
-                    colourRed(parent.getLeft());
-            }
             values.remove(node.getValue());
             return true;
         }
 
         // black leaf with red parent => remove with changes in the tree
         if (node.getColour() == 0 && node.isLeaf() && parent != null && parent.getColour() == 1) {
+            // colour the parent black
+            // colour the other child of the parent red and fix possible problems that occurred because of this
             if (parent.getLeft() == node) {
                 parent.setLeft(null);
                 parent.setColour(0);
@@ -249,6 +240,8 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         if (node.getColour() == 0 && node.isLeaf() && parent != null && parent.getColour() == 0) {
             node.changeRemoveState();
             values.remove(node.getValue());
+
+            // rebuild if over half are tombstones
             removedAmount++;
             if (removedAmount > size() / 2) {
                 removedAmount = 0;
@@ -257,22 +250,23 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             return true;
         }
 
-        // root, but also a leaf
+        // root in a tree with 1 node
         if (node.equals(root) && node.isLeaf()) {
             root = null;
             values.remove(node.getValue());
             return true;
         }
 
-        // intern node => swap with biggest in the left or smallest in the right subtree and call remove on the special cases
+        // intern node => swap with biggest in the left or smallest in the right subtree and call remove recursively
 
         // get the necessary nodes to perform the swap
         RedBlackNode<E> swapNodeParent = node;
-        RedBlackNode<E> swapNode = node.getLeft() != null ? node.getLeft() : node.getRight();
+        boolean searchLeft = node.getLeft() != null;
+        RedBlackNode<E> swapNode = searchLeft ? node.getLeft() : node.getRight();
 
         boolean found = false;
         while (!found) {
-            if (node.getLeft() != null) {
+            if (searchLeft) {
                 if (swapNode.getRight() != null) {
                     swapNodeParent = swapNode;
                     swapNode = swapNode.getRight();
@@ -292,7 +286,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         node.setValue(swapNode.getValue());
         swapNode.setValue(key);
 
-        // if swapNode was removed, make sure it still is
+        // change some remove states if swapNode was removed
         if (swapNode.isRemoved()) {
             node.changeRemoveState();
             swapNode.changeRemoveState();
