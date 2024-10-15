@@ -5,12 +5,19 @@ import java.util.*;
 
 public class Benchmark {
     public static void main(String[] args) {
-        int t = 10;
-        int n = 1000000;
-
         // RED/BLACK TREE
         System.out.print("RED/BLACK TREE\n\n");
 
+        redBlackTree(100, 100);
+        redBlackTree(100, 1000);
+        redBlackTree(100, 10000);
+        redBlackTree(10, 100000);
+
+
+        // RAINBOW TREE
+    }
+
+    private static void redBlackTree(int t, int n) {
         // add n nodes
         long[] times = new long[t];
         for (int i = 0; i < times.length; i++) {
@@ -33,9 +40,7 @@ public class Benchmark {
             times[i] = stop - start;
         }
         long removeAverage = getAverageTime(times) - addAverage;
-        System.out.printf("remove %d nodes:\n%dms\n", n, removeAverage);
-
-        // RAINBOW TREE
+        System.out.printf("remove %d nodes:\n%dms\n\n", n, removeAverage);
     }
 
     private static void redBlackTreeAdd(int... keys) {

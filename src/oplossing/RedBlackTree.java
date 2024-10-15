@@ -285,8 +285,10 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         E key = node.getValue();
         node.setValue(swapNode.getValue());
         swapNode.setValue(key);
+        int nodeColour = node.getColour();
+        node.setColour(swapNode.getColour());
+        swapNode.setColour(nodeColour);
 
-        // change some remove states if swapNode was removed
         if (swapNode.isRemoved()) {
             node.changeRemoveState();
             swapNode.changeRemoveState();
