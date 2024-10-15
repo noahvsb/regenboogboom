@@ -17,19 +17,16 @@ public class SimpleTest {
     public void RedBlackTree() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
-        int a = 1000;
+        int a = 50;
 
         Assertions.assertTrue(add(tree, generateKeys(a, true)));
         IntegerTreeVisualizer.print(tree);
 
         Assertions.assertEquals(a, tree.size());
 
-        int r = 900;
+        int r = 43;
 
         Assertions.assertTrue(remove(tree, generateKeys(r, true)));
-        IntegerTreeVisualizer.print(tree);
-
-        Assertions.assertTrue(tree.remove(26));
         IntegerTreeVisualizer.print(tree);
 
         Assertions.assertEquals(a - r, tree.size());

@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Benchmark {
     public static void main(String[] args) {
-        int t = 3;
+        int t = 10;
         int n = 1000000;
 
         // RED/BLACK TREE

@@ -11,20 +11,18 @@ import java.util.List;
 public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
     private RedBlackNode<E> root;
-    private final HashSet<RedBlackNode<E>> nodes;
     private final HashSet<E> values;
     private int removedAmount;
 
     public RedBlackTree() {
         root = null;
-        nodes = new HashSet<>();
         values = new HashSet<>();
         removedAmount = 0;
     }
 
     @Override
     public int size() {
-        return nodes.size();
+        return values.size();
     }
 
     @Override
@@ -62,7 +60,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         // tree doesn't have a root yet
         if (root == null) {
             root = new RedBlackNode<>(key, 0);
-            addToSets(root);
+            values.add(root.getValue());;
             return true;
         }
 
@@ -72,18 +70,18 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         // node with the key is a tombstone
         if (parent.getValue().equals(key)) {
             parent.changeRemoveState();
-            addToSets(parent);
+            values.add(parent.getValue());
             return true;
         }
 
         // no issue
         if (parent.getColour() == 0) {
-            RedBlackNode<E> newNode = new RedBlackNode<>(key, 1);
+            RedBlackNode<E> node = new RedBlackNode<>(key, 1);
             if (key.compareTo(parent.getValue()) < 0)
-                parent.setLeft(newNode);
+                parent.setLeft(node);
             else
-                parent.setRight(newNode);
-            addToSets(newNode);
+                parent.setRight(node);
+            values.add(node.getValue());
             return true;
         }
 
@@ -94,7 +92,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
         fix2RedsProblem(path, issueSource, p1, p2, true);
 
-        addToSets(issueSource);
+        values.add(issueSource.getValue());
         return true;
     }
 
@@ -176,29 +174,18 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         return Arrays.asList(n2, n3, n1, n3.getLeft(), n2.getLeft(), n1.getLeft(), n1.getRight());
     }
 
-    private void addToSets(RedBlackNode<E> node) {
-        nodes.add(node);
-        values.add(node.getValue());
-    }
-
     @Override
     public boolean remove(E key) {
-        // key exists (and thus also isn't a tombstone)
+        // key exists
         if (search(key)) {
             List<RedBlackNode<E>> path = getSearchPath(key);
             RedBlackNode<E> node = path.removeLast();
             RedBlackNode<E> parent = path.isEmpty() ? null : path.getLast();
 
-            if (removeSpecialCases(node, parent))
-                return true;
-
-            // root, but also a leaf
-            if (node.isLeaf()) {
-                root = null;
-                removeFromSets(node);
-                return true;
-            }
+            return removeSpecialCases(node, parent);
         }
+
+        // key doesn't exist
         return false;
     }
 
@@ -209,12 +196,12 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                 parent.setLeft(null);
             else
                 parent.setRight(null);
-            removeFromSets(node);
+            values.remove(node.getValue());
             return true;
         }
 
         // black node with 1 child and red parent => remove with changes in the tree
-        if (node.getColour() == 0 && node.childrenCount() == 1 && parent.getColour() == 1) {
+        if (node.getColour() == 0 && node.childrenCount() == 1 && parent != null && parent.getColour() == 1) {
             // grab the child
             RedBlackNode<E> child = node.getLeft();
             if (child == null)
@@ -238,12 +225,12 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                 else
                     colourRed(parent.getLeft());
             }
-            removeFromSets(node);
+            values.remove(node.getValue());
             return true;
         }
 
         // black leaf with red parent => remove with changes in the tree
-        if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 1) {
+        if (node.getColour() == 0 && node.isLeaf() && parent != null && parent.getColour() == 1) {
             if (parent.getLeft() == node) {
                 parent.setLeft(null);
                 parent.setColour(0);
@@ -254,19 +241,26 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                 parent.setColour(0);
                 colourRed(parent.getLeft());
             }
-            removeFromSets(node);
+            values.remove(node.getValue());
             return true;
         }
 
         // black leaf with black parent => tombstone
-        if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 0) {
+        if (node.getColour() == 0 && node.isLeaf() && parent != null && parent.getColour() == 0) {
             node.changeRemoveState();
-            removeFromSets(node);
+            values.remove(node.getValue());
             removedAmount++;
             if (removedAmount > size() / 2) {
                 removedAmount = 0;
                 rebuild();
             }
+            return true;
+        }
+
+        // root, but also a leaf
+        if (node.equals(root) && node.isLeaf()) {
+            root = null;
+            values.remove(node.getValue());
             return true;
         }
 
@@ -325,11 +319,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         }
     }
 
-    public void removeFromSets(RedBlackNode<E> node) {
-        nodes.remove(node);
-        values.remove(node.getValue());
-    }
-
     @Override
     public void rebuild() {
         // idea:
@@ -341,7 +330,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         List<E> keys = values();
 
         root = null;
-        nodes.clear();
         values.clear();
 
         for (E key : keys)
