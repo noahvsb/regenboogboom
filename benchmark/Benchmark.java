@@ -10,7 +10,7 @@ public class Benchmark {
 
         redBlackTree(100, 100);
         redBlackTree(100, 1000);
-        redBlackTree(100, 10000);
+        redBlackTree(10, 10000);
         redBlackTree(10, 100000);
 
 

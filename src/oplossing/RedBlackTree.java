@@ -281,6 +281,41 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             }
         }
 
+        if (swapNode.getColour() == 0 && swapNodeParent.getColour() == 0) {
+            // if left was tried, try right as well for a second chance
+            boolean secondChance = false;
+            if (searchLeft && node.getRight() != null) {
+                swapNodeParent = node;
+                swapNode = node.getRight();
+                found = false;
+                while (!found) {
+                    if (swapNode.getLeft() != null) {
+                        swapNodeParent = swapNode;
+                        swapNode = swapNode.getLeft();
+                    } else
+                        found = true;
+                }
+                if (swapNode.getColour() != 0 || swapNodeParent.getColour() != 0)
+                    secondChance = true;
+            }
+
+            if (!secondChance) {
+                // if swapNode and swapNodeParent are black, the node wouldn't actually be removed
+                // and the tree wouldn't be a search tree anymore
+                // so the node gets turned into a tombstone instead
+                node.changeRemoveState();
+                values.remove(node.getValue());
+
+                // rebuild if over half are tombstones
+                removedAmount++;
+                if (removedAmount > size() / 2) {
+                    removedAmount = 0;
+                    rebuild();
+                }
+                return true;
+            }
+        }
+
         // perform swap
         E key = node.getValue();
         node.setValue(swapNode.getValue());
@@ -319,7 +354,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         // make a complete binary tree of depth log2(n) ? rounded down with all black nodes
         // then add the remaining nodes as red leafs
         // TODO
-
         List<E> keys = values();
 
         root = null;
