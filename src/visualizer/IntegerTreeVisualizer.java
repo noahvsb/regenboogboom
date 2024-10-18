@@ -98,6 +98,7 @@ public class IntegerTreeVisualizer {
         return 2 * log2(tree.size() + 1) - 1;
     }
 
+    // always rounded
     private static long log2(int n) {
         return Math.round(Math.log(n) / Math.log(2));
     }

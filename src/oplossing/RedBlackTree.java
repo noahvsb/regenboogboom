@@ -240,7 +240,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
             // rebuild if over half are tombstones
             removedAmount++;
-            if (removedAmount > size() / 2) {
+            if (removedAmount >= size() / 2) {
                 removedAmount = 0;
                 rebuild();
             }
@@ -305,7 +305,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
                 // rebuild if over half are tombstones
                 removedAmount++;
-                if (removedAmount > size() / 2) {
+                if (removedAmount >= size() / 2) {
                     removedAmount = 0;
                     rebuild();
                 }
@@ -346,11 +346,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
     @Override
     public void rebuild() {
-        // idea:
-        // if you have n nodes
-        // make a complete binary tree of depth log2(n) ? rounded down with all black nodes
-        // then add the remaining nodes as red leafs
-        // TODO
         List<E> keys = values();
 
         root = null;
@@ -358,6 +353,60 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
         for (E key : keys)
             add(key);
+    }
+
+    public void testRebuild() {
+        // TODO: idea
+        // if you have n nodes
+        // make a complete binary tree with all black nodes
+        // of depth log n rounded down - (0 if n == 2^(log n rounded down + 1) - 1 else 1)
+        // then add the remaining nodes as red leafs
+        // (if the tree is empty, then depth is -1, this will only occur if the tree only has 1 node which is turned into a gravestone, but that never occurs)
+        // (if n == 2^(log n rounded down + 1) - 1, then you won't have any red leafs)
+
+        // get data
+        int n = size();
+        List<E> keys = values();
+
+        // clear tree
+        root = null;
+        values.clear();
+
+        // TODO: idea
+        // extract the keys from keys that should be red leafs
+        // build the complete binary tree of the remaining keys
+        // add the red leaf keys like normal (if chosen correctly, these will always be added to the tree as a red leaf without causing issues)
+
+        // TODO: idea
+        // red leaf key indexes from sorted keys = 0, 2, 4, 6, 8, 10, 12 ..., so the even indexes
+        // but make sure to only get the exact amount of red leafs needed
+        // which is n - (2^d - 1) with d being depth of the complete binary tree
+
+        // calculate depth of the complete binary tree
+        int cbtDepth = log2(n);
+        if (n != (int) Math.pow(2, log2(n + 1)) - 1)
+            cbtDepth--;
+
+        // separate red leaf keys from other keys
+        int redLeafsAmount = n - (int) Math.pow(2, cbtDepth) + 1;
+
+        List<E> redLeafKeys = new ArrayList<>();
+        for (int i = 0; i < redLeafsAmount; i++)
+            redLeafKeys.add(keys.get(2 * i));
+
+        keys.removeAll(redLeafKeys);
+
+        // build complete binary tree
+        // TODO
+
+        // add red leafs
+        for (E key : redLeafKeys)
+            add(key);
+    }
+
+    // always rounded down
+    private int log2(int n) {
+        return (int) Math.floor(Math.log(n) / Math.log(2));
     }
 
     @Override
