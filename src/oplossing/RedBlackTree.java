@@ -30,10 +30,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         return values.contains(key);
     }
 
-    // This function serves 2 uses:
-    // To get the search path (like you would expect).
-    // But also if for a key search(key) returns true,
-    // you can use getLast() on the returned list to get the actual Node with that key.
     public List<RedBlackNode<E>> getSearchPath(E key) {
         RedBlackNode<E> currentNode = root;
         List<RedBlackNode<E>> searchPath = new ArrayList<>();
@@ -101,8 +97,9 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         boolean problem = true;
 
         while (problem) {
-            boolean useOptimized = allowOptimized && (p2.getLeft() == null || p2.getLeft().getColour() == 0
-                    || p2.getRight() == null || p2.getRight().getColour() == 0);
+            boolean isLeft = p2.getLeft() != null && p2.getLeft().equals(p1);
+            boolean useOptimized = allowOptimized && ((!isLeft && (p2.getLeft() == null || p2.getLeft().getColour() == 0))
+                    || ((isLeft && (p2.getRight() == null || p2.getRight().getColour() == 0))));
 
             List<RedBlackNode<E>> nodes = orderNodes(issueSource, p1, p2);
             RedBlackNode<E> n1 = nodes.getFirst();
@@ -124,11 +121,11 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             if (path.isEmpty()) {
                 root = n1;
             } else {
-                RedBlackNode<E> p = path.getLast();
-                if (n1.getValue().compareTo(p.getValue()) < 0)
-                    p.setLeft(n1);
+                RedBlackNode<E> p3 = path.getLast();
+                if (n1.getValue().compareTo(p3.getValue()) < 0)
+                    p3.setLeft(n1);
                 else
-                    p.setRight(n1);
+                    p3.setRight(n1);
             }
 
             n1.setLeft(n2);
@@ -339,7 +336,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
         // problem occurs
         if (child != null && child.getColour() == 1) {
-            List<RedBlackNode<E>> path = getSearchPath(child.getValue());
+            List<RedBlackNode<E>> path = getSearchPath(child.getValue()); // TODO: optimize?
             RedBlackNode<E> issueSource = path.removeLast();
             RedBlackNode<E> p1 = path.removeLast();
             RedBlackNode<E> p2 = path.removeLast();

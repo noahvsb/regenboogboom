@@ -39,7 +39,7 @@ public class IntegerTreeVisualizer {
 
     public static void print(SearchTree<Integer> tree, int digits) {
         if (tree.size() == 0) {
-            System.out.println("empty");
+            System.out.println("empty tree");
         } else {
             int maxDepth = (int) maxDepth(tree);
             int actualDepth = maxDepth;
