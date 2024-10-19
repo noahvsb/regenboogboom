@@ -8,10 +8,10 @@ public class Benchmark {
         // RED/BLACK TREE
         System.out.print("RED/BLACK TREE\n\n");
 
-        redBlackTree(100, 100);
-        redBlackTree(100, 1000);
-        redBlackTree(10, 10000);
-        redBlackTree(10, 100000);
+        redBlackTree(1000, 100);
+        redBlackTree(1000, 1000);
+        redBlackTree(100, 10000);
+        redBlackTree(100, 100000);
 
 
         // RAINBOW TREE
