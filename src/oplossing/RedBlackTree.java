@@ -2,6 +2,7 @@ package oplossing;
 
 import opgave.Node;
 import opgave.SearchTree;
+import visualizer.IntegerTreeVisualizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -187,6 +188,13 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
     }
 
     private boolean removeSpecialCases(RedBlackNode<E> node, RedBlackNode<E> parent) {
+        // root in a tree with 1 node
+        if (node.equals(root) && node.isLeaf()) {
+            root = null;
+            values.remove(node.getValue());
+            return true;
+        }
+
         // red leaf => remove safely
         if (node.getColour() == 1 && node.isLeaf()) {
             if (parent.getLeft() == node)
@@ -235,22 +243,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
         // black leaf with black parent => tombstone
         if (node.getColour() == 0 && node.isLeaf() && parent != null && parent.getColour() == 0) {
-            node.changeRemoveState();
-            values.remove(node.getValue());
-
-            // rebuild if over half are tombstones
-            removedAmount++;
-            if (removedAmount >= size() / 2) {
-                removedAmount = 0;
-                rebuild();
-            }
-            return true;
-        }
-
-        // root in a tree with 1 node
-        if (node.equals(root) && node.isLeaf()) {
-            root = null;
-            values.remove(node.getValue());
+            tombstone(node);
             return true;
         }
 
@@ -296,19 +289,10 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                     secondChance = true;
             }
 
-            if (!secondChance) {
-                // if swapNode and swapNodeParent are black, the node wouldn't actually be removed
+            if (!secondChance) {// if swapNode and swapNodeParent are black, the node wouldn't actually be removed
                 // and the tree wouldn't be a search tree anymore
                 // so the node gets turned into a tombstone instead
-                node.changeRemoveState();
-                values.remove(node.getValue());
-
-                // rebuild if over half are tombstones
-                removedAmount++;
-                if (removedAmount >= size() / 2) {
-                    removedAmount = 0;
-                    rebuild();
-                }
+                tombstone(node);
                 return true;
             }
         }
@@ -336,7 +320,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
         // problem occurs
         if (child != null && child.getColour() == 1) {
-            List<RedBlackNode<E>> path = getSearchPath(child.getValue()); // TODO: optimize?
+            List<RedBlackNode<E>> path = getSearchPath(child.getValue());
             RedBlackNode<E> issueSource = path.removeLast();
             RedBlackNode<E> p1 = path.removeLast();
             RedBlackNode<E> p2 = path.removeLast();
@@ -344,26 +328,20 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         }
     }
 
-    @Override
-    public void rebuild() {
-        List<E> keys = values();
+    private void tombstone(RedBlackNode<E> node) {
+        node.changeRemoveState();
+        values.remove(node.getValue());
 
-        root = null;
-        values.clear();
-
-        for (E key : keys)
-            add(key);
+        // rebuild if half or more are tombstones
+        removedAmount++;
+        if (removedAmount >= size()) {
+            removedAmount = 0;
+            rebuild();
+        }
     }
 
-    public void testRebuild() {
-        // TODO: idea
-        // if you have n nodes
-        // make a complete binary tree with all black nodes
-        // of depth log n rounded down - (0 if n == 2^(log n rounded down + 1) - 1 else 1)
-        // then add the remaining nodes as red leafs
-        // (if the tree is empty, then depth is -1, this will only occur if the tree only has 1 node which is turned into a gravestone, but that never occurs)
-        // (if n == 2^(log n rounded down + 1) - 1, then you won't have any red leafs)
-
+    @Override
+    public void rebuild() {
         // get data
         int n = size();
         List<E> keys = values();
@@ -372,32 +350,27 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         root = null;
         values.clear();
 
-        // TODO: idea
-        // extract the keys from keys that should be red leafs
-        // build the complete binary tree of the remaining keys
-        // add the red leaf keys like normal (if chosen correctly, these will always be added to the tree as a red leaf without causing issues)
-
-        // TODO: idea
-        // red leaf key indexes from sorted keys = 0, 2, 4, 6, 8, 10, 12 ..., so the even indexes
-        // but make sure to only get the exact amount of red leafs needed
-        // which is n - (2^d - 1) with d being depth of the complete binary tree
-
         // calculate depth of the complete binary tree
         int cbtDepth = log2(n);
-        if (n != (int) Math.pow(2, log2(n + 1)) - 1)
+        if (n != (int) Math.pow(2, cbtDepth + 1) - 1)
             cbtDepth--;
 
         // separate red leaf keys from other keys
-        int redLeafsAmount = n - (int) Math.pow(2, cbtDepth) + 1;
+        // the indexes for red leaf keys are the even indexes
+        // but not all of them or else you would have too many red leaf keys
+        int redLeafsAmount = n - ((int) Math.pow(2, cbtDepth + 1) - 1);
 
         List<E> redLeafKeys = new ArrayList<>();
-        for (int i = 0; i < redLeafsAmount; i++)
-            redLeafKeys.add(keys.get(2 * i));
+        List<E> otherKeys = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            if (i < 2 * redLeafsAmount && i % 2 == 0)
+                redLeafKeys.add(keys.get(i));
+            else
+                otherKeys.add(keys.get(i));
+        }
 
-        keys.removeAll(redLeafKeys);
-
-        // build complete binary tree
-        // TODO
+        // build complete binary tree using the other keys
+        buildCompleteBinaryTree(otherKeys);
 
         // add red leafs
         for (E key : redLeafKeys)
@@ -407,6 +380,56 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
     // always rounded down
     private int log2(int n) {
         return (int) Math.floor(Math.log(n) / Math.log(2));
+    }
+
+    private void buildCompleteBinaryTree(List<E> keys) {
+        // perform a special sort (see specialSort() for more details)
+        keys = specialSort(keys);
+
+        // set the root
+        E first = keys.removeFirst();
+        root = new RedBlackNode<>(first, 0);
+        values.add(first);
+
+        // add the rest like you would in a normal binary search tree
+        for (E key : keys) {
+            RedBlackNode<E> parent = root;
+            boolean added = false;
+            while (!added) {
+                if (parent.getValue().compareTo(key) > 0) {
+                    if (parent.getLeft() == null) {
+                        parent.setLeft(new RedBlackNode<>(key, 0));
+                        added = true;
+                    } else
+                        parent = parent.getLeft();
+                } else {
+                    if (parent.getRight() == null) {
+                        parent.setRight(new RedBlackNode<>(key, 0));
+                        added = true;
+                    } else
+                        parent = parent.getRight();
+                }
+            }
+            values.add(key);
+        }
+    }
+
+    // the amount of elements in a list needs to be equal to 2^n - 1 with n >= 1 (n is going to be the depth + 1)
+    // start with the middle element, then the middle element of the left elements, then the middle element of those left elements ...
+    // then the middle element of the right elements ...
+    // example: [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o] => [h, d, b, a, c, f, e, g, l, j, i, k, n, m, o]
+    private List<E> specialSort(List<E> list) {
+        if (list.size() == 1)
+            return list;
+
+        List<E> sorted = new ArrayList<>();
+
+        int middle = list.size() / 2;
+        sorted.add(list.get(middle));
+        sorted.addAll(specialSort(list.subList(0, middle)));
+        sorted.addAll(specialSort(list.subList(middle + 1, list.size())));
+
+        return sorted;
     }
 
     @Override

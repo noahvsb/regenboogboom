@@ -8,7 +8,8 @@ import java.util.*;
 
 public class SimpleTest {
 
-    private static final int SEED = 123;
+    private static final int ADD_SEED = 123;
+    private static final int REMOVE_SEED = 456;
 
     @Test
     public void RedBlackTree() {
@@ -16,26 +17,25 @@ public class SimpleTest {
 
         int a = 100;
 
-        Assertions.assertTrue(add(tree, generateKeys(a, true)));
+        Assertions.assertTrue(add(tree, generateKeys(a, ADD_SEED)));
         IntegerTreeVisualizer.print(tree);
 
         Assertions.assertEquals(a, tree.size());
 
         int r = 100;
 
-        Assertions.assertTrue(remove(tree, generateKeys(r, true)));
+        Assertions.assertTrue(remove(tree, generateKeys(r, REMOVE_SEED)));
         IntegerTreeVisualizer.print(tree);
 
         Assertions.assertEquals(a - r, tree.size());
     }
 
     // generate keys from 1 to n (inclusive)
-    public int[] generateKeys(int n, boolean shuffled) {
+    public int[] generateKeys(int n, int seed) {
         List<Integer> keysList = new ArrayList<>();
         for (int i = 1; i <= n; i++)
             keysList.add(i);
-        if (shuffled)
-            Collections.shuffle(keysList, new Random(SEED));
+        Collections.shuffle(keysList, new Random(seed));
         return keysList.stream().mapToInt(i -> i).toArray();
     }
 
@@ -51,11 +51,14 @@ public class SimpleTest {
 
     // remove multiple keys at once in an integer tree, stops if a key can't be removed
     public boolean remove(SearchTree<Integer> tree, int... keys) {
-        for (int key : keys)
+        for (int key : keys) {
+            System.out.println("Removing " + key);
             if (!tree.remove(key)) {
                 System.err.println("Removal of " + key + " failed");
                 return false;
             }
+            IntegerTreeVisualizer.print(tree);
+        }
         return true;
     }
 }
