@@ -345,35 +345,37 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         int n = size();
         List<E> keys = values();
 
-        // clear tree
-        root = null;
-        values.clear();
+        if (n > 2) {
+            // clear tree
+            root = null;
+            values.clear();
 
-        // calculate depth of the complete binary tree
-        int cbtDepth = log2(n);
-        if (n != (int) Math.pow(2, cbtDepth + 1) - 1)
-            cbtDepth--;
+            // calculate depth of the complete binary tree
+            int cbtDepth = log2(n);
+            if (n != (int) Math.pow(2, cbtDepth + 1) - 1)
+                cbtDepth--;
 
-        // separate red leaf keys from other keys
-        // the indexes for red leaf keys are the even indexes
-        // but not all of them or else you would have too many red leaf keys
-        int redLeafsAmount = n - ((int) Math.pow(2, cbtDepth + 1) - 1);
+            // separate red leaf keys from other keys
+            // the indexes for red leaf keys are the even indexes
+            // but not all of them or else you would have too many red leaf keys
+            int redLeafsAmount = n - ((int) Math.pow(2, cbtDepth + 1) - 1);
 
-        List<E> redLeafKeys = new ArrayList<>();
-        List<E> otherKeys = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            if (i < 2 * redLeafsAmount && i % 2 == 0)
-                redLeafKeys.add(keys.get(i));
-            else
-                otherKeys.add(keys.get(i));
+            List<E> redLeafKeys = new ArrayList<>();
+            List<E> otherKeys = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                if (i < 2 * redLeafsAmount && i % 2 == 0)
+                    redLeafKeys.add(keys.get(i));
+                else
+                    otherKeys.add(keys.get(i));
+            }
+
+            // build complete binary tree using the other keys
+            buildCompleteBinaryTree(otherKeys);
+
+            // add red leafs
+            for (E key : redLeafKeys)
+                add(key);
         }
-
-        // build complete binary tree using the other keys
-        buildCompleteBinaryTree(otherKeys);
-
-        // add red leafs
-        for (E key : redLeafKeys)
-            add(key);
     }
 
     // always rounded down
