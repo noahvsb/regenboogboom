@@ -74,7 +74,7 @@ public class SimpleTest {
     // remove multiple keys at once in an integer tree, stops if a key can't be removed
     public boolean remove(SearchTree<Integer> tree, int... keys) {
         for (int key : keys) {
-            System.out.println("Removing " + key + " (size: " + tree.size() + ")");
+            System.out.println("Removing " + key);
             if (!tree.remove(key)) {
                 System.err.println("Removal of " + key + " failed");
                 return false;

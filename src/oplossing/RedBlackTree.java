@@ -288,9 +288,10 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                     secondChance = true;
             }
 
-            if (!secondChance) {// if swapNode and swapNodeParent are black, the node wouldn't actually be removed
+            if (!secondChance) {
+                // if swapNode and swapNodeParent are black, the node wouldn't actually be removed (tombstone)
                 // and the tree wouldn't be a search tree anymore
-                // so the node gets turned into a tombstone instead
+                // so the node gets turned into a tombstone directly instead of a swap and then a tombstone
                 tombstone(node);
                 return true;
             }
