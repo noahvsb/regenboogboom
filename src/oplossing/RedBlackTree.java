@@ -36,11 +36,9 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
         while (currentNode != null) {
             searchPath.add(currentNode);
-
-            int comparison = key.compareTo(currentNode.getValue());
-            if (comparison < 0)
+            if (key.compareTo(currentNode.getValue()) < 0)
                 currentNode = currentNode.getLeft();
-            else if (comparison > 0)
+            else if (key.compareTo(currentNode.getValue()) > 0)
                 currentNode = currentNode.getRight();
             else
                 currentNode = null;
@@ -189,6 +187,13 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
     }
 
     private boolean removeSpecialCases(RedBlackNode<E> node, RedBlackNode<E> parent) {
+        // root in a tree with 1 node
+        if (node.equals(root) && node.isLeaf()) {
+            root = null;
+            values.remove(node.getValue());
+            return true;
+        }
+
         // red leaf => remove safely
         if (node.getColour() == 1 && node.isLeaf()) {
             if (parent.getLeft() == node)
@@ -241,14 +246,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             return true;
         }
 
-        // root in a tree with 1 node
-        if (node.equals(root) && node.isLeaf()) {
-            root = null;
-            values.remove(node.getValue());
-            return true;
-        }
-
-
         // intern node => swap with biggest in the left or smallest in the right subtree and call remove recursively
 
         // get the necessary nodes to perform the swap
@@ -287,14 +284,13 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                     } else
                         found = true;
                 }
-                if (swapNode.getColour() == 1 || swapNodeParent.getColour() == 1)
+                if (swapNode.getColour() != 0 || swapNodeParent.getColour() != 0)
                     secondChance = true;
             }
 
-            // if swapNode and swapNodeParent are black, the node would be a tombstone
-            // and the tree wouldn't be a search tree anymore
-            // so the node gets turned into a tombstone before the swap instead
-            if (!secondChance) {
+            if (!secondChance) {// if swapNode and swapNodeParent are black, the node wouldn't actually be removed
+                // and the tree wouldn't be a search tree anymore
+                // so the node gets turned into a tombstone instead
                 tombstone(node);
                 return true;
             }
@@ -401,7 +397,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             RedBlackNode<E> parent = root;
             boolean added = false;
             while (!added) {
-                if (key.compareTo(parent.getValue()) < 0) {
+                if (parent.getValue().compareTo(key) > 0) {
                     if (parent.getLeft() == null) {
                         parent.setLeft(new RedBlackNode<>(key, 0));
                         added = true;
