@@ -34,6 +34,9 @@ public class IntegerTreeVisualizer {
             digits++;
         }
 
+        if (digits % 2 == 1)
+            digits++;
+
         print(tree, digits);
     }
 
@@ -108,7 +111,7 @@ public class IntegerTreeVisualizer {
         if (n == null)
             return " ".repeat(digits);
         if (n.isRemoved())
-            return colorIntToString[n.getColour()] + "-".repeat(digits) + ANSI_RESET;
+            return colorIntToString[n.getColour()] + "\uD83D\uDC80".repeat(digits / 2) + ANSI_RESET;
         String v = n.getValue().toString();
         v = "0".repeat(digits - v.length()) + v;
         return colorIntToString[n.getColour()] + v + ANSI_RESET;

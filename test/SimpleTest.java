@@ -19,7 +19,6 @@ public class SimpleTest {
         int a = 50;
 
         Assertions.assertTrue(add(tree, generateKeys(a, ADD_SEED)));
-        //IntegerTreeVisualizer.print(tree);
 
         Assertions.assertEquals(a, tree.size());
 
@@ -27,7 +26,6 @@ public class SimpleTest {
         int r = 50;
 
         Assertions.assertTrue(remove(tree, generateKeys(r, REMOVE_SEED)));
-        //IntegerTreeVisualizer.print(tree);
 
         Assertions.assertEquals(a - r, tree.size());
     }
@@ -76,7 +74,7 @@ public class SimpleTest {
     // remove multiple keys at once in an integer tree, stops if a key can't be removed
     public boolean remove(SearchTree<Integer> tree, int... keys) {
         for (int key : keys) {
-            System.out.println("Removing " + key);
+            System.out.println("Removing " + key + " (size: " + tree.size() + ")");
             if (!tree.remove(key)) {
                 System.err.println("Removal of " + key + " failed");
                 return false;
