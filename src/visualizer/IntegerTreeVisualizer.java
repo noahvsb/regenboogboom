@@ -16,10 +16,13 @@ public class IntegerTreeVisualizer {
     public static final String ANSI_YELLOW_BG = "\u001B[43m";
     public static final String ANSI_BLUE_BG = "\u001B[44m";
     public static final String ANSI_PURPLE_BG = "\u001B[45m";
+    public static final String ANSI_CYAN_BG = "\u001B[46m";
+    public static final String ANSI_WHITE_BG = "\u001B[47m";
     public static final String[] colorIntToString =
             {
                     ANSI_BLACK_BG, ANSI_BLACK + ANSI_RED_BG, ANSI_BLACK + ANSI_GREEN_BG,
-                    ANSI_BLACK + ANSI_YELLOW_BG, ANSI_BLUE_BG, ANSI_BLACK + ANSI_PURPLE_BG
+                    ANSI_BLACK + ANSI_YELLOW_BG, ANSI_BLACK + ANSI_BLUE_BG, ANSI_BLACK + ANSI_PURPLE_BG,
+                    ANSI_BLACK + ANSI_CYAN_BG, ANSI_BLACK + ANSI_WHITE_BG
             };
 
     public static void print(SearchTree<Integer> tree) {

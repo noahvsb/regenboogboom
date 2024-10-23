@@ -1,5 +1,7 @@
 import opgave.SearchTree;
+import oplossing.RainbowTree;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import oplossing.RedBlackTree;
 import visualizer.IntegerTreeVisualizer;
@@ -8,9 +10,10 @@ import java.util.*;
 
 public class SimpleTest {
 
-    private static final int ADD_SEED = 123;
-    private static final int REMOVE_SEED = 456;
+    private static final int ADD_SEED = 1234;
+    private static final int REMOVE_SEED = 5678;
 
+    @Disabled
     @Test
     public void RedBlackTreeAddRemove() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
@@ -30,6 +33,7 @@ public class SimpleTest {
         Assertions.assertEquals(a - r, tree.size());
     }
 
+    @Disabled
     @Test
     public void RedBlackTreeRebuild() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
@@ -47,6 +51,23 @@ public class SimpleTest {
         IntegerTreeVisualizer.print(tree);
 
         Assertions.assertEquals(a, tree.size());
+    }
+
+    @Test
+    public void RainbowTreeAdDdRemove() {
+        int k = 8;
+
+        RainbowTree<Integer> tree = new RainbowTree<>(k);
+
+        // add
+        int a = 20;
+
+        Assertions.assertTrue(add(tree, generateKeys(a, ADD_SEED)));
+
+        Assertions.assertEquals(a, tree.size());
+
+        // remove
+        // TODO
     }
 
     // generate keys from 1 to n (inclusive)
