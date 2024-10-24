@@ -21,28 +21,27 @@ public class SimpleTest {
         // add
         int a = 50;
 
-        Assertions.assertTrue(add(tree, generateKeys(a, ADD_SEED)));
+        Assertions.assertTrue(add(tree, true, generateKeys(a, ADD_SEED)));
 
         Assertions.assertEquals(a, tree.size());
 
         // remove
         int r = 50;
 
-        Assertions.assertTrue(remove(tree, generateKeys(r, REMOVE_SEED)));
+        Assertions.assertTrue(remove(tree, true, generateKeys(r, REMOVE_SEED)));
 
         Assertions.assertEquals(a - r, tree.size());
     }
 
-    @Disabled
+    //@Disabled
     @Test
     public void RedBlackTreeRebuild() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
         // add
-        int a = 1;
+        int a = 49;
 
-        Assertions.assertTrue(add(tree, generateKeys(a, ADD_SEED)));
-        //IntegerTreeVisualizer.print(tree);
+        Assertions.assertTrue(add(tree, false, generateKeys(a, ADD_SEED)));
 
         Assertions.assertEquals(a, tree.size());
 
@@ -53,6 +52,7 @@ public class SimpleTest {
         Assertions.assertEquals(a, tree.size());
     }
 
+    @Disabled
     @Test
     public void RainbowTreeAdDdRemove() {
         int k = 8;
@@ -62,7 +62,7 @@ public class SimpleTest {
         // add
         int a = 20;
 
-        Assertions.assertTrue(add(tree, generateKeys(a, ADD_SEED)));
+        Assertions.assertTrue(add(tree, true, generateKeys(a, ADD_SEED)));
 
         Assertions.assertEquals(a, tree.size());
 
@@ -80,27 +80,32 @@ public class SimpleTest {
     }
 
     // add multiple keys at once in an integer tree, stops if a key can't be added
-    public boolean add(SearchTree<Integer> tree, int... keys) {
+    public boolean add(SearchTree<Integer> tree, boolean print, int... keys) {
         for (int key : keys) {
-            System.out.println("Adding " + key);
             if (!tree.add(key)) {
                 System.err.println("Adding of " + key + " failed");
                 return false;
             }
-            IntegerTreeVisualizer.print(tree);
+            if (print) {
+                System.out.println("Added " + key);
+                IntegerTreeVisualizer.print(tree);
+            }
         }
         return true;
     }
 
     // remove multiple keys at once in an integer tree, stops if a key can't be removed
-    public boolean remove(SearchTree<Integer> tree, int... keys) {
+    public boolean remove(SearchTree<Integer> tree, boolean print, int... keys) {
         for (int key : keys) {
-            System.out.println("Removing " + key);
+
             if (!tree.remove(key)) {
                 System.err.println("Removal of " + key + " failed");
                 return false;
             }
-            IntegerTreeVisualizer.print(tree);
+            if (print) {
+                System.out.println("Removed " + key);
+                IntegerTreeVisualizer.print(tree);
+            }
         }
         return true;
     }

@@ -342,6 +342,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
     @Override
     public void rebuild() {
+        // TODO: it can be even less red nodes
         // get data
         int n = size();
         List<E> keys = values();
@@ -373,9 +374,30 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             // build complete binary tree using the other keys
             buildCompleteBinaryTree(otherKeys);
 
-            // add red leafs
-            for (E key : redLeafKeys)
-                add(key);
+            // add red leafs with some slight changes to minimize the amount of red nodes
+            List<RedBlackNode<E>> path = null;
+            int i = 1;
+            for (E key : redLeafKeys) {
+                if (i % 2 == 1) {
+                    path = getSearchPath(key);
+                    path.getLast().setLeft(new RedBlackNode<>(key, 1));
+                } else {
+                    RedBlackNode<E> parent = path.removeLast();
+                    parent.setRight(new RedBlackNode<>(key, 0));
+                    parent.getLeft().setColour(0);
+                    parent.setColour(1);
+                    int j = 1;
+                    while ((i / Math.pow(2, j)) % 2 == 0) {
+                        parent.setColour(0);
+                        parent = path.removeLast();
+                        parent.getLeft().setColour(0);
+                        parent.setColour(1);
+                        j++;
+                    }
+                }
+                values.add(key);
+                i++;
+            }
         }
     }
 
