@@ -342,7 +342,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
     @Override
     public void rebuild() {
-        // TODO: it can be even less red nodes
         // get data
         int n = size();
         List<E> keys = values();

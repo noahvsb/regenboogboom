@@ -13,7 +13,7 @@ public class SimpleTest {
     private static final int ADD_SEED = 1234;
     private static final int REMOVE_SEED = 5678;
 
-    @Disabled
+    //@Disabled
     @Test
     public void RedBlackTreeAddRemove() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
@@ -33,7 +33,7 @@ public class SimpleTest {
         Assertions.assertEquals(a - r, tree.size());
     }
 
-    //@Disabled
+    @Disabled
     @Test
     public void RedBlackTreeRebuild() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
