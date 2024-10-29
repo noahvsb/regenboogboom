@@ -33,7 +33,7 @@ public class SimpleTest {
         Assertions.assertEquals(a - r, tree.size());
     }
 
-    @Disabled
+    //@Disabled
     @Test
     public void RedBlackTreeRebuild() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
@@ -52,9 +52,9 @@ public class SimpleTest {
         Assertions.assertEquals(a, tree.size());
     }
 
-    @Disabled
+    //@Disabled
     @Test
-    public void RainbowTreeAdDdRemove() {
+    public void RainbowTreeAddRemove() {
         int k = 8;
 
         RainbowTree<Integer> tree = new RainbowTree<>(k);
