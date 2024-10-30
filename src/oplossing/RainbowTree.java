@@ -211,7 +211,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
             RainbowNode<E> child = node.getLeft() != null ? node.getLeft() : node.getRight();
 
             // attach to the parent instead of the node we want to remove
-            if (parent.getLeft() == node)
+            if (node.getValue().compareTo(parent.getValue()) < 0)
                 parent.setLeft(child);
             else
                 parent.setRight(child);
