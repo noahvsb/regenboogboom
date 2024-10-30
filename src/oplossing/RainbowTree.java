@@ -189,7 +189,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
 
     private boolean removeSpecialCases(RainbowNode<E> node, RainbowNode<E> parent) {
         // root in a tree with 1 node
-        if (node.equals(root) && node.isLeaf()) {
+        if (parent == null && node.isLeaf()) {
             root = null;
             values.remove(node.getValue());
             return true;
@@ -211,7 +211,9 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
             RainbowNode<E> child = node.getLeft() != null ? node.getLeft() : node.getRight();
 
             // attach to the parent instead of the node we want to remove
-            if (node.getValue().compareTo(parent.getValue()) < 0)
+            if (parent == null)
+                root = child;
+            else if (parent.getLeft().equals(node))
                 parent.setLeft(child);
             else
                 parent.setRight(child);
