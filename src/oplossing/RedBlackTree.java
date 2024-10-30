@@ -327,7 +327,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         int n = size();
         List<E> keys = values();
 
-        if (n > 2) {
+        if (n > 0) {
             // clear tree
             root = null;
             values.clear();
