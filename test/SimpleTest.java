@@ -10,10 +10,10 @@ import java.util.*;
 
 public class SimpleTest {
 
-    private static final int ADD_SEED = 1234;
-    private static final int REMOVE_SEED = 5678;
+    private static final int ADD_SEED = 123;
+    private static final int REMOVE_SEED = 456;
 
-    //@Disabled
+    @Disabled
     @Test
     public void RedBlackTreeAddRemove() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
@@ -33,7 +33,7 @@ public class SimpleTest {
         Assertions.assertEquals(a - r, tree.size());
     }
 
-    //@Disabled
+    @Disabled
     @Test
     public void RedBlackTreeRebuild() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
@@ -55,19 +55,23 @@ public class SimpleTest {
     //@Disabled
     @Test
     public void RainbowTreeAddRemove() {
-        int k = 8;
+        int k = 5;
 
         RainbowTree<Integer> tree = new RainbowTree<>(k);
 
         // add
-        int a = 20;
+        int a = 50;
 
         Assertions.assertTrue(add(tree, true, generateKeys(a, ADD_SEED)));
 
         Assertions.assertEquals(a, tree.size());
 
         // remove
-        // TODO
+        int r = 50;
+
+        Assertions.assertTrue(remove(tree, true, generateKeys(a, REMOVE_SEED)));
+
+        Assertions.assertEquals(a - r, tree.size());
     }
 
     // generate keys from 1 to n (inclusive)

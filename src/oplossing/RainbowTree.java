@@ -2,6 +2,7 @@ package oplossing;
 
 import opgave.Node;
 import opgave.SearchTree;
+import visualizer.IntegerTreeVisualizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,22 +87,19 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
             return true;
         }
 
-        return false;
-        // TODO
         // issue
-//        RainbowNode<E> issueSource = new RainbowNode<>(key, 1, k);
-//        RainbowNode<E> p1 = path.removeLast();
-//        RainbowNode<E> p2 = path.removeLast();
-//
-//        fix2WrongColoursProblem(path, issueSource, p1, p2);
-//
-//        values.add(issueSource.getValue());
-//        return true;
+        RainbowNode<E> issueSource = new RainbowNode<>(key, 1, k);
+        RainbowNode<E> p1 = path.removeLast();
+        RainbowNode<E> p2 = path.removeLast();
+
+        fix2WrongColoursProblem(path, issueSource, p1, p2);
+
+        values.add(issueSource.getValue());
+        return true;
     }
 
     // make sure the issueSource, p1 and p2 nodes are removed from the path
     private void fix2WrongColoursProblem(List<RainbowNode<E>> path, RainbowNode<E> issueSource, RainbowNode<E> p1, RainbowNode<E> p2) {
-        // TODO
         boolean problem = true;
 
         while (problem) {
@@ -112,8 +110,8 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
 
             // set colours
             n1.setColour(1);
-            n2.setColour(0);
-            n3.setColour(0);
+            n2.setColour(p2.getColour());
+            n3.setColour(p2.getColour());
 
             // build subtree
             if (path.isEmpty()) {
@@ -134,18 +132,27 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
             n3.setRight(nodes.get(6));
 
             // check if done and else prepare for the next cycle
-            issueSource = nodes.getFirst();
+            if (p2.getColour() != 1) {
+                issueSource = nodes.getFirst();
 
-            // issue source is root
-            if (path.isEmpty()) {
-                issueSource.setColour(0);
-                problem = false;
-            } else {
-                p1 = path.removeLast();
-                if (p1.getColour() == 0)
+                // issue source is root
+                if (path.isEmpty()) {
+                    issueSource.setColour(0);
                     problem = false;
-                else
-                    p2 = path.removeLast();
+                } else {
+                    p1 = path.removeLast();
+                    if (p1.getColour() == 0 || p1.getColour() < issueSource.getColour())
+                        problem = false;
+                    else
+                        p2 = path.removeLast();
+                }
+            }
+            // if the grandparent was red, then our issue source and parents will be different
+            // we also don't need to check if done, because we know there's an issue
+            else {
+                issueSource = nodes.get(2);
+                p1 = nodes.getFirst();
+                p2 = path.removeLast();
             }
         }
     }
@@ -166,14 +173,129 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
     }
 
     @Override
-    public boolean remove(E e) {
-        // TODO
+    public boolean remove(E key) {
+        // key exists
+        if (search(key)) {
+            List<RainbowNode<E>> path = getSearchPath(key);
+            RainbowNode<E> node = path.removeLast();
+            RainbowNode<E> parent = path.isEmpty() ? null : path.getLast();
+
+            return removeSpecialCases(node, parent);
+        }
+
+        // key doesn't exist
         return false;
+    }
+
+    private boolean removeSpecialCases(RainbowNode<E> node, RainbowNode<E> parent) {
+        // root in a tree with 1 node
+        if (node.equals(root) && node.isLeaf()) {
+            root = null;
+            values.remove(node.getValue());
+            return true;
+        }
+
+        // non-black leaf => remove safely
+        if (node.getColour() != 0 && node.isLeaf()) {
+            if (parent.getLeft() == node)
+                parent.setLeft(null);
+            else
+                parent.setRight(null);
+            values.remove(node.getValue());
+            return true;
+        }
+
+        // black node with 1 child => remove with changes in the tree
+        if (node.getColour() == 0 && node.childrenCount() == 1) {
+            // grab the child
+            RainbowNode<E> child = node.getLeft() != null ? node.getLeft() : node.getRight();
+
+            // attach to the parent instead of the node we want to remove
+            if (parent.getLeft() == node)
+                parent.setLeft(child);
+            else
+                parent.setRight(child);
+
+            // set child's colour to black (child will always be red, otherwise one of the conditions isn't met)
+            child.setColour(0);
+
+            values.remove(node.getValue());
+            return true;
+        }
+
+        // black leaf => tombstone
+        if (node.getColour() == 0 && node.isLeaf()) {
+            tombstone(node);
+            return true;
+        }
+
+        // intern node => swap with biggest in the left or smallest in the right subtree and call remove recursively
+
+        // get the necessary nodes to perform the swap
+        RainbowNode<E> swapNodeParent = node;
+        boolean searchLeft = node.getLeft() != null;
+        RainbowNode<E> swapNode = searchLeft ? node.getLeft() : node.getRight();
+
+        boolean found = false;
+        while (!found) {
+            if (searchLeft) {
+                if (swapNode.getRight() != null) {
+                    swapNodeParent = swapNode;
+                    swapNode = swapNode.getRight();
+                } else
+                    found = true;
+            } else {
+                if (swapNode.getLeft() != null) {
+                    swapNodeParent = swapNode;
+                    swapNode = swapNode.getLeft();
+                } else
+                    found = true;
+            }
+        }
+
+        // if swapNode and swapNodeParent are black, the node wouldn't actually be removed (tombstone)
+        // and the tree wouldn't be a search tree anymore
+        // so the node gets turned into a tombstone directly instead of a swap and then a tombstone
+        if (swapNode.getColour() == 0 && swapNodeParent.getColour() == 0) {
+            tombstone(node);
+            return true;
+        }
+
+        // perform swap
+        E key = node.getValue();
+        node.setValue(swapNode.getValue());
+        swapNode.setValue(key);
+
+        if (swapNode.isRemoved()) {
+            node.changeRemoveState();
+            swapNode.changeRemoveState();
+        }
+
+        // recursion
+        return removeSpecialCases(swapNode, swapNodeParent != swapNode ? swapNodeParent : node);
+    }
+
+    private void tombstone(RainbowNode<E> node) {
+        node.changeRemoveState();
+        values.remove(node.getValue());
+
+        // rebuild if half or more are tombstones
+        removedAmount++;
+        if (removedAmount > size()) {
+            removedAmount = 0;
+            rebuild();
+        }
     }
 
     @Override
     public void rebuild() {
-        // TODO
+        List<E> keys = values();
+
+        root = null;
+        values.clear();
+
+        for (E key : keys)
+            add(key);
     }
 
     @Override

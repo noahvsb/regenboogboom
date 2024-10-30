@@ -270,31 +270,12 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             }
         }
 
+        // if swapNode and swapNodeParent are black, the node wouldn't actually be removed (tombstone)
+        // and the tree wouldn't be a search tree anymore
+        // so the node gets turned into a tombstone directly instead of a swap and then a tombstone
         if (swapNode.getColour() == 0 && swapNodeParent.getColour() == 0) {
-            // if left was tried, try right as well for a second chance
-            boolean secondChance = false;
-            if (searchLeft && node.getRight() != null) {
-                swapNodeParent = node;
-                swapNode = node.getRight();
-                found = false;
-                while (!found) {
-                    if (swapNode.getLeft() != null) {
-                        swapNodeParent = swapNode;
-                        swapNode = swapNode.getLeft();
-                    } else
-                        found = true;
-                }
-                if (swapNode.getColour() != 0 || swapNodeParent.getColour() != 0)
-                    secondChance = true;
-            }
-
-            if (!secondChance) {
-                // if swapNode and swapNodeParent are black, the node wouldn't actually be removed (tombstone)
-                // and the tree wouldn't be a search tree anymore
-                // so the node gets turned into a tombstone directly instead of a swap and then a tombstone
-                tombstone(node);
-                return true;
-            }
+            tombstone(node);
+            return true;
         }
 
         // perform swap
@@ -346,57 +327,55 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         int n = size();
         List<E> keys = values();
 
-        if (n > 2) {
-            // clear tree
-            root = null;
-            values.clear();
+        // clear tree
+        root = null;
+        values.clear();
 
-            // calculate depth of the complete binary tree
-            int cbtDepth = log2(n);
-            if (n != (int) Math.pow(2, cbtDepth + 1) - 1)
-                cbtDepth--;
+        // calculate depth of the complete binary tree
+        int cbtDepth = log2(n);
+        if (n != (int) Math.pow(2, cbtDepth + 1) - 1)
+            cbtDepth--;
 
-            // separate red leaf keys from other keys
-            // the indexes for red leaf keys are the even indexes
-            // but not all of them or else you would have too many red leaf keys
-            int redLeafsAmount = n - ((int) Math.pow(2, cbtDepth + 1) - 1);
+        // separate red leaf keys from other keys
+        // the indexes for red leaf keys are the even indexes
+        // but not all of them or else you would have too many red leaf keys
+        int redLeafsAmount = n - ((int) Math.pow(2, cbtDepth + 1) - 1);
 
-            List<E> redLeafKeys = new ArrayList<>();
-            List<E> otherKeys = new ArrayList<>();
-            for (int i = 0; i < n; i++) {
-                if (i < 2 * redLeafsAmount && i % 2 == 0)
-                    redLeafKeys.add(keys.get(i));
-                else
-                    otherKeys.add(keys.get(i));
-            }
+        List<E> redLeafKeys = new ArrayList<>();
+        List<E> otherKeys = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            if (i < 2 * redLeafsAmount && i % 2 == 0)
+                redLeafKeys.add(keys.get(i));
+            else
+                otherKeys.add(keys.get(i));
+        }
 
-            // build complete binary tree using the other keys
-            buildCompleteBinaryTree(otherKeys);
+        // build complete binary tree using the other keys
+        buildCompleteBinaryTree(otherKeys);
 
-            // add red leafs with some slight changes to minimize the amount of red nodes
-            List<RedBlackNode<E>> path = null;
-            int i = 1;
-            for (E key : redLeafKeys) {
-                if (i % 2 == 1) {
-                    path = getSearchPath(key);
-                    path.getLast().setLeft(new RedBlackNode<>(key, 1));
-                } else {
-                    RedBlackNode<E> parent = path.removeLast();
-                    parent.setRight(new RedBlackNode<>(key, 0));
+        // add red leafs with some slight changes to minimize the amount of red nodes
+        List<RedBlackNode<E>> path = null;
+        int i = 1;
+        for (E key : redLeafKeys) {
+            if (i % 2 == 1) {
+                path = getSearchPath(key);
+                path.getLast().setLeft(new RedBlackNode<>(key, 1));
+            } else {
+                RedBlackNode<E> parent = path.removeLast();
+                parent.setRight(new RedBlackNode<>(key, 0));
+                parent.getLeft().setColour(0);
+                parent.setColour(1);
+                int j = 1;
+                while ((i / Math.pow(2, j)) % 2 == 0) {
+                    parent.setColour(0);
+                    parent = path.removeLast();
                     parent.getLeft().setColour(0);
                     parent.setColour(1);
-                    int j = 1;
-                    while ((i / Math.pow(2, j)) % 2 == 0) {
-                        parent.setColour(0);
-                        parent = path.removeLast();
-                        parent.getLeft().setColour(0);
-                        parent.setColour(1);
-                        j++;
-                    }
+                    j++;
                 }
-                values.add(key);
-                i++;
             }
+            values.add(key);
+            i++;
         }
     }
 
