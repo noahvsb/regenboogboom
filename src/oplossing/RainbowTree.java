@@ -2,7 +2,6 @@ package oplossing;
 
 import opgave.Node;
 import opgave.SearchTree;
-import visualizer.IntegerTreeVisualizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;

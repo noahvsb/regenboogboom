@@ -1,4 +1,5 @@
 import opgave.SearchTree;
+import oplossing.RainbowTree;
 import oplossing.RedBlackTree;
 
 import java.util.*;
@@ -15,6 +16,15 @@ public class Benchmark {
 
 
         // RAINBOW TREE
+        System.out.print("\n\nRAINBOW TREE\n");
+        for (int k = 2; k <= 8; k++) {
+            System.out.printf("\nk = %d\n\n", k);
+
+            rainbowTree(k, 1000, 100);
+            rainbowTree(k, 1000, 1000);
+            rainbowTree(k, 100, 10000);
+            rainbowTree(k, 30, 100000);
+        }
     }
 
     private static void redBlackTree(int t, int n) {
@@ -51,6 +61,46 @@ public class Benchmark {
 
     private static void redBlackTreeAddThenRemove(int... keys) {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
+        if (!add(tree, keys))
+            System.err.println("Something went wrong");
+        if (!remove(tree, keys))
+            System.err.println("Something went wrong");
+    }
+
+    private static void rainbowTree(int k, int t, int n) {
+        // add n nodes
+        long[] times = new long[t];
+        for (int i = 0; i < times.length; i++) {
+            int[] keys = generateKeys(n, true);
+            long start = System.currentTimeMillis();
+            rainbowTreeAdd(k, keys);
+            long stop = System.currentTimeMillis();
+            times[i] = stop - start;
+        }
+        long addAverage = getAverageTime(times);
+        System.out.printf("add %d nodes:\n%dms\n", n, addAverage);
+
+        // remove n nodes
+        times = new long[t];
+        for (int i = 0; i < times.length; i++) {
+            int[] keys = generateKeys(n, true);
+            long start = System.currentTimeMillis();
+            rainbowTreeAddThenRemove(k, keys);
+            long stop = System.currentTimeMillis();
+            times[i] = stop - start;
+        }
+        long removeAverage = getAverageTime(times) - addAverage;
+        System.out.printf("remove %d nodes:\n%dms\n\n", n, removeAverage);
+    }
+
+    private static void rainbowTreeAdd(int k, int... keys) {
+        RainbowTree<Integer> tree = new RainbowTree<>(k);
+        if (!add(tree,keys))
+            System.err.println("Something went wrong");
+    }
+
+    private static void rainbowTreeAddThenRemove(int k, int... keys) {
+        RainbowTree<Integer> tree = new RainbowTree<>(k);
         if (!add(tree, keys))
             System.err.println("Something went wrong");
         if (!remove(tree, keys))
