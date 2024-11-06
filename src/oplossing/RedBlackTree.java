@@ -223,7 +223,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         }
 
         // black leaf with red parent => remove with changes in the tree
-        if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 1) {
+        if (node.getColour() == 0 && node.isLeaf() && parent != null && parent.getColour() == 1) {
             // colour the parent black
             // colour the other child of the parent red and fix possible problems that occurred because of this
             if (parent.getLeft() == node) {
@@ -241,7 +241,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         }
 
         // black leaf with black parent => tombstone
-        if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 0) {
+        if (node.getColour() == 0 && node.isLeaf() && parent != null && parent.getColour() == 0) {
             tombstone(node);
             return true;
         }
