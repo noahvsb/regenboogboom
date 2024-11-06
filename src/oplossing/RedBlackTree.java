@@ -2,7 +2,6 @@ package oplossing;
 
 import opgave.Node;
 import opgave.SearchTree;
-import visualizer.IntegerTreeVisualizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,20 +86,20 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         RedBlackNode<E> p1 = path.removeLast();
         RedBlackNode<E> p2 = path.removeLast();
 
-        fix2RedsProblem(path, issueSource, p1, p2);
+        fix2RedsProblem(path, issueSource, p1, p2, true);
 
         values.add(issueSource.getValue());
         return true;
     }
 
     // make sure the issueSource, p1 and p2 nodes are removed from the path
-    private void fix2RedsProblem(List<RedBlackNode<E>> path, RedBlackNode<E> issueSource, RedBlackNode<E> p1, RedBlackNode<E> p2) {
+    private void fix2RedsProblem(List<RedBlackNode<E>> path, RedBlackNode<E> issueSource, RedBlackNode<E> p1, RedBlackNode<E> p2, boolean allowOptimized) {
         boolean problem = true;
 
         while (problem) {
             boolean isLeft = p2.getLeft() != null && p2.getLeft().equals(p1);
-            boolean useOptimized = (!isLeft && (p2.getLeft() == null || p2.getLeft().getColour() == 0))
-                    || ((isLeft && (p2.getRight() == null || p2.getRight().getColour() == 0)));
+            boolean useOptimized = allowOptimized && ((!isLeft && (p2.getLeft() == null || p2.getLeft().getColour() == 0))
+                    || ((isLeft && (p2.getRight() == null || p2.getRight().getColour() == 0))));
 
             List<RedBlackNode<E>> nodes = orderNodes(issueSource, p1, p2);
             RedBlackNode<E> n1 = nodes.getFirst();
@@ -224,7 +223,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         }
 
         // black leaf with red parent => remove with changes in the tree
-        if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 1) {
+        if (node.getColour() == 0 && node.isLeaf() && parent != null && parent.getColour() == 1) {
             // colour the parent black
             // colour the other child of the parent red and fix possible problems that occurred because of this
             if (parent.getLeft() == node) {
@@ -242,7 +241,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         }
 
         // black leaf with black parent => tombstone
-        if (node.getColour() == 0 && node.isLeaf() && parent.getColour() == 0) {
+        if (node.getColour() == 0 && node.isLeaf() && parent != null && parent.getColour() == 0) {
             tombstone(node);
             return true;
         }
@@ -294,9 +293,6 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
     }
 
     private void colourRed(RedBlackNode<E> node) {
-        if (node == null) {
-            IntegerTreeVisualizer.print((SearchTree<Integer>) this);
-        }
         node.setColour(1);
 
         RedBlackNode<E> child = node.getLeft();
@@ -309,7 +305,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             RedBlackNode<E> issueSource = path.removeLast();
             RedBlackNode<E> p1 = path.removeLast();
             RedBlackNode<E> p2 = path.removeLast();
-            fix2RedsProblem(path, issueSource, p1, p2);
+            fix2RedsProblem(path, issueSource, p1, p2, false);
         }
     }
 
