@@ -188,7 +188,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
     private boolean removeSpecialCases(RedBlackNode<E> node, RedBlackNode<E> parent) {
         // root in a tree with 1 node
-        if (parent == null && node.isLeaf()) {
+        if (node.equals(root) && node.isLeaf()) {
             root = null;
             values.remove(node.getValue());
             return true;
