@@ -19,14 +19,14 @@ public class SimpleTest {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
         // add
-        int a = 50;
+        int a = 100;
 
-        Assertions.assertTrue(add(tree, true, generateKeys(a, ADD_SEED)));
+        Assertions.assertTrue(add(tree, false, generateKeys(a, ADD_SEED)));
 
         Assertions.assertEquals(a, tree.size());
 
         // remove
-        int r = 50;
+        int r = 100;
 
         Assertions.assertTrue(remove(tree, true, generateKeys(r, REMOVE_SEED)));
 
