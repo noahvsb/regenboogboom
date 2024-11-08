@@ -2,6 +2,7 @@ package visualizer;
 
 import opgave.Node;
 import opgave.SearchTree;
+import oplossing.RainbowTree;
 
 import java.util.*;
 
@@ -18,7 +19,7 @@ public class IntegerTreeVisualizer {
     public static final String ANSI_PURPLE_BG = "\u001B[45m";
     public static final String ANSI_CYAN_BG = "\u001B[46m";
     public static final String ANSI_WHITE_BG = "\u001B[47m";
-    public static final String[] colorIntToString =
+    public static String[] colorIntToString =
             {
                     ANSI_BLACK_BG, ANSI_BLACK + ANSI_RED_BG, ANSI_BLACK + ANSI_GREEN_BG,
                     ANSI_BLACK + ANSI_YELLOW_BG, ANSI_BLACK + ANSI_BLUE_BG, ANSI_BLACK + ANSI_PURPLE_BG,
@@ -26,6 +27,34 @@ public class IntegerTreeVisualizer {
             };
 
     public static void print(SearchTree<Integer> tree) {
+        int max = 0;
+        for (int v : tree.values())
+            if (v > max)
+                max = v;
+
+        int digits = 0;
+        while (max != 0) {
+            max /= 10;
+            digits++;
+        }
+
+        if (digits % 2 == 1)
+            digits++;
+
+        print(tree, digits);
+    }
+
+    public static void print(SearchTree<Integer> tree, boolean christmasThemed) {
+        if (christmasThemed) {
+            // if you print a rainbow tree with more than 3 colours, it'll start printing in red, white and green
+            // instead of black, red and green
+            colorIntToString = new String[]{
+                ANSI_BLACK + ANSI_RED_BG, ANSI_BLACK + ANSI_WHITE_BG, ANSI_BLACK + ANSI_GREEN_BG,
+                ANSI_BLACK + ANSI_YELLOW_BG, ANSI_BLACK + ANSI_BLUE_BG, ANSI_BLACK + ANSI_PURPLE_BG,
+                ANSI_BLACK + ANSI_CYAN_BG, ANSI_BLACK_BG,
+            };
+        }
+
         int max = 0;
         for (int v : tree.values())
             if (v > max)

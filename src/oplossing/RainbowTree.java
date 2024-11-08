@@ -257,7 +257,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         // if swapNode and swapNodeParent are black, the node wouldn't actually be removed (tombstone)
         // and the tree wouldn't be a search tree anymore
         // so the node gets turned into a tombstone directly instead of a swap and then a tombstone
-        if (swapNode.getColour() == 0 && swapNodeParent.getColour() == 0) {
+        if (swapNode.getColour() == 0 && swapNode.isLeaf()) {
             tombstone(node);
             return true;
         }
