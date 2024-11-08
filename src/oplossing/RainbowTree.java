@@ -290,13 +290,121 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
 
     @Override
     public void rebuild() {
+        // in the comments for this method I assumed red = colour 1
+
+        // get data
+        int n = size();
         List<E> keys = values();
 
-        root = null;
-        values.clear();
+        if (n > 0) {
+            // clear tree
+            root = null;
+            values.clear();
 
-        for (E key : keys)
-            add(key);
+            // calculate depth of the complete binary tree
+            int cbtDepth = log2(n);
+            if (n != (int) Math.pow(2, cbtDepth + 1) - 1)
+                cbtDepth--;
+
+            // separate red leaf keys from other keys
+            // the indexes for those keys are the even indexes
+            // but not all of them or else you would have too many red leaf keys
+            int redLeafAmount = n - ((int) Math.pow(2, cbtDepth + 1) - 1);
+
+            List<E> redLeafKeys = new ArrayList<>();
+            List<E> otherKeys = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                if (i < 2 * redLeafAmount && i % 2 == 0)
+                    redLeafKeys.add(keys.get(i));
+                else
+                    otherKeys.add(keys.get(i));
+            }
+
+            List<RainbowNode<E>> cbtNodes = new ArrayList<>();
+
+            // build complete binary tree using the other keys
+            buildCompleteBinaryTree(otherKeys, cbtDepth, redLeafAmount, cbtNodes);
+
+            // add red leafs with some slight changes to minimize the amount of red nodes
+            for (E key : redLeafKeys)
+                this.add(key);
+
+            // maximize the amount of red nodes
+            for (int i = 0; i < cbtDepth / 2; i++)
+                for (RainbowNode<E> node : cbtNodes)
+                    if (node.getColour() == 1) {
+                        // because of the way I built my cbt, I only need to check the left child
+                        RainbowNode<E> left = node.getLeft();
+                        if (left != null && left.getColour() == 0
+                                && (left.getLeft() == null || left.getLeft().getColour() == 0)
+                                && (left.getRight() == null || left.getRight().getColour() == 0)) {
+                            node.setColour(0);
+                            left.setColour(1);
+                            node.getRight().setColour(1);
+                        }
+                    }
+        }
+    }
+
+    // always rounded down
+    private int log2(int n) {
+        return (int) Math.floor(Math.log(n) / Math.log(2));
+    }
+
+    private void buildCompleteBinaryTree(List<E> keys, int depth, int a, List<RainbowNode<E>> nodes) {
+        // perform a special sort (see specialSort() for more details)
+        keys = specialSort(keys);
+
+        // set the root
+        E first = keys.removeFirst();
+        root = new RainbowNode<>(first, 0, k);
+        values.add(first);
+
+        // add the rest like you would in a normal binary search tree
+        for (E key : keys) {
+            RainbowNode<E> parent = root;
+            int nodeDepth = 1;
+            boolean added = false;
+            while (!added) {
+                boolean left = parent.getValue().compareTo(key) > 0;
+                if ((left && parent.getLeft() == null) || (!left && parent.getRight() == null)) {
+                    int colour = (a == 0 && depth % 2 == nodeDepth % 2) || (a != 0 && depth % 2 != nodeDepth % 2) ? 1 : 0;
+                    RainbowNode<E> node = new RainbowNode<>(key, colour, k);
+                    if (left)
+                        parent.setLeft(node);
+                    else
+                        parent.setRight(node);
+                    if (nodeDepth != depth)
+                        nodes.add(node);
+                    added = true;
+                } else {
+                    if (left)
+                        parent = parent.getLeft();
+                    else
+                        parent = parent.getRight();
+                }
+                nodeDepth++;
+            }
+            values.add(key);
+        }
+    }
+
+    // the amount of elements in a list needs to be equal to 2^n - 1 with n >= 1 (n is going to be the depth + 1)
+    // start with the middle element, then the middle element of the left elements, then the middle element of those left elements ...
+    // then the middle element of the right elements ...
+    // example: [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o] => [h, d, b, a, c, f, e, g, l, j, i, k, n, m, o]
+    private List<E> specialSort(List<E> list) {
+        if (list.size() == 1)
+            return list;
+
+        List<E> sorted = new ArrayList<>();
+
+        int middle = list.size() / 2;
+        sorted.add(list.get(middle));
+        sorted.addAll(specialSort(list.subList(0, middle)));
+        sorted.addAll(specialSort(list.subList(middle + 1, list.size())));
+
+        return sorted;
     }
 
     @Override

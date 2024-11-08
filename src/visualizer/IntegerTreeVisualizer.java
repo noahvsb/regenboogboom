@@ -127,7 +127,7 @@ public class IntegerTreeVisualizer {
         }
     }
 
-    private static long maxDepth(SearchTree<Integer> tree) {
+    public static long maxDepth(SearchTree<Integer> tree) {
         if (tree.root() == null)
             return 0;
         return 2 * log2(tree.size() + 1) - 1;
