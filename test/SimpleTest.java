@@ -79,7 +79,7 @@ public class SimpleTest {
         Assertions.assertEquals(a - r, tree.size());
     }
 
-    //@Disabled
+    @Disabled
     @Test
     public void RainbowTreeRebuild() {
         int k = 5;
@@ -87,7 +87,7 @@ public class SimpleTest {
         RainbowTree<Integer> tree = new RainbowTree<>(k);
 
         // add
-        int a = 99;
+        int a = 31;
 
         Assertions.assertTrue(add(tree, false, generateKeys(a, ADD_SEED)));
 
@@ -100,6 +100,20 @@ public class SimpleTest {
         Assertions.assertEquals(a, tree.size());
 
         System.out.printf("amount of nodes of colour %d: %d\n", 1, getAmountOfNodesOfColour(tree, 1));
+    }
+
+    @Disabled
+    @Test
+    public void tempRebuild() {
+        for (int i = 1; i <= 50; i++) {
+            RainbowTree<Integer> tree = new RainbowTree<>(3);
+
+            add(tree, false, generateKeys(i, 0));
+
+            tree.rebuild();
+
+            System.out.printf("nodes: %d count: %d\n", i, getAmountOfNodesOfColour(tree, 1));
+        }
     }
 
     // generate keys from 1 to n (inclusive)

@@ -2,11 +2,9 @@ package oplossing;
 
 import opgave.Node;
 import opgave.SearchTree;
+import visualizer.IntegerTreeVisualizer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
@@ -352,7 +350,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             }
 
             // build complete binary tree using the other keys
-            buildCompleteBinaryTree(otherKeys);
+            buildCompleteBinaryTree(otherKeys, cbtDepth);
 
             // add red leafs with some slight changes to minimize the amount of red nodes
             List<RedBlackNode<E>> path = null;
@@ -386,7 +384,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         return (int) Math.floor(Math.log(n) / Math.log(2));
     }
 
-    private void buildCompleteBinaryTree(List<E> keys) {
+    private void buildCompleteBinaryTree(List<E> keys, int depth) {
         // perform a special sort (see specialSort() for more details)
         keys = specialSort(keys);
 
@@ -396,25 +394,32 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         values.add(first);
 
         // add the rest like you would in a normal binary search tree
+        Stack<RedBlackNode<E>> parents = new Stack<>();
+        RedBlackNode<E> lastNode = root;
+        int currentDepth = 0;
+
         for (E key : keys) {
-            RedBlackNode<E> parent = root;
-            boolean added = false;
-            while (!added) {
-                if (parent.getValue().compareTo(key) > 0) {
-                    if (parent.getLeft() == null) {
-                        parent.setLeft(new RedBlackNode<>(key, 0));
-                        added = true;
-                    } else
-                        parent = parent.getLeft();
-                } else {
-                    if (parent.getRight() == null) {
-                        parent.setRight(new RedBlackNode<>(key, 0));
-                        added = true;
-                    } else
-                        parent = parent.getRight();
+            RedBlackNode<E> node = new RedBlackNode<>(key, 0);
+
+            if (currentDepth != depth && lastNode.getLeft() == null) {
+                lastNode.setLeft(node);
+
+                parents.push(lastNode);
+            } else {
+                currentDepth--;
+                RedBlackNode<E> parent = parents.pop();
+                while (parent.getRight() != null) {
+                    currentDepth--;
+                    parent = parents.pop();
                 }
+
+                parent.setRight(node);
+
+                parents.push(parent);
             }
             values.add(key);
+            lastNode = node;
+            currentDepth++;
         }
     }
 

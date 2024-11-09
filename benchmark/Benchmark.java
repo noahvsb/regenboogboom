@@ -32,9 +32,12 @@ public class Benchmark {
         long[] times = new long[t];
         for (int i = 0; i < times.length; i++) {
             int[] keys = generateKeys(n, true);
+            RedBlackTree<Integer> tree = new RedBlackTree<>();
+
             long start = System.currentTimeMillis();
-            redBlackTreeAdd(keys);
+            searchTreeAdd(tree, keys);
             long stop = System.currentTimeMillis();
+
             times[i] = stop - start;
         }
         long addAverage = getAverageTime(times);
@@ -44,27 +47,16 @@ public class Benchmark {
         times = new long[t];
         for (int i = 0; i < times.length; i++) {
             int[] keys = generateKeys(n, true);
+            RedBlackTree<Integer> tree = new RedBlackTree<>();
+
             long start = System.currentTimeMillis();
-            redBlackTreeAddThenRemove(keys);
+            searchTreeAddThenRemove(tree, keys);
             long stop = System.currentTimeMillis();
+
             times[i] = stop - start;
         }
         long removeAverage = getAverageTime(times) - addAverage;
         System.out.printf("remove %d nodes:\n%dms\n\n", n, removeAverage);
-    }
-
-    private static void redBlackTreeAdd(int... keys) {
-        RedBlackTree<Integer> tree = new RedBlackTree<>();
-        if (!add(tree,keys))
-            System.err.println("Something went wrong");
-    }
-
-    private static void redBlackTreeAddThenRemove(int... keys) {
-        RedBlackTree<Integer> tree = new RedBlackTree<>();
-        if (!add(tree, keys))
-            System.err.println("Something went wrong");
-        if (!remove(tree, keys))
-            System.err.println("Something went wrong");
     }
 
     private static void rainbowTree(int k, int t, int n) {
@@ -72,9 +64,12 @@ public class Benchmark {
         long[] times = new long[t];
         for (int i = 0; i < times.length; i++) {
             int[] keys = generateKeys(n, true);
+            RainbowTree<Integer> tree = new RainbowTree<>(k);
+
             long start = System.currentTimeMillis();
-            rainbowTreeAdd(k, keys);
+            searchTreeAdd(tree, keys);
             long stop = System.currentTimeMillis();
+
             times[i] = stop - start;
         }
         long addAverage = getAverageTime(times);
@@ -84,23 +79,24 @@ public class Benchmark {
         times = new long[t];
         for (int i = 0; i < times.length; i++) {
             int[] keys = generateKeys(n, true);
+            RainbowTree<Integer> tree = new RainbowTree<>(k);
+
             long start = System.currentTimeMillis();
-            rainbowTreeAddThenRemove(k, keys);
+            searchTreeAddThenRemove(tree, keys);
             long stop = System.currentTimeMillis();
+
             times[i] = stop - start;
         }
         long removeAverage = getAverageTime(times) - addAverage;
         System.out.printf("remove %d nodes:\n%dms\n\n", n, removeAverage);
     }
 
-    private static void rainbowTreeAdd(int k, int... keys) {
-        RainbowTree<Integer> tree = new RainbowTree<>(k);
+    private static void searchTreeAdd(SearchTree<Integer> tree, int... keys) {
         if (!add(tree,keys))
             System.err.println("Something went wrong");
     }
 
-    private static void rainbowTreeAddThenRemove(int k, int... keys) {
-        RainbowTree<Integer> tree = new RainbowTree<>(k);
+    private static void searchTreeAddThenRemove(SearchTree<Integer> tree, int... keys) {
         if (!add(tree, keys))
             System.err.println("Something went wrong");
         if (!remove(tree, keys))
