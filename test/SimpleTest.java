@@ -36,7 +36,7 @@ public class SimpleTest {
         Assertions.assertEquals(a - r, tree.size());
     }
 
-    @Disabled
+    //@Disabled
     @Test
     public void RedBlackTreeRebuild() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();

@@ -2,7 +2,6 @@ package oplossing;
 
 import opgave.Node;
 import opgave.SearchTree;
-import visualizer.IntegerTreeVisualizer;
 
 import java.util.*;
 
@@ -402,6 +401,9 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         Stack<RedBlackNode<E>> parents = new Stack<>();
         RedBlackNode<E> lastNode = root;
         int parentDepth = 0;
+
+        if (depth == parentDepth)
+            bottomLevel.add(root);
 
         for (E key : keys) {
             RedBlackNode<E> node = new RedBlackNode<>(key, 0);

@@ -2,7 +2,6 @@ package oplossing;
 
 import opgave.Node;
 import opgave.SearchTree;
-import visualizer.IntegerTreeVisualizer;
 
 import java.util.*;
 
@@ -324,11 +323,19 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
             List<RainbowNode<E>> bottomLevel = buildCompleteBinaryTree(otherKeys, cbtDepth, redLeafAmount, cbtRedNodes);
 
             // add red leafs with some slight changes to minimize the amount of red nodes
-            for (E key : redLeafKeys)
-                this.add(key);
+            int i = 0;
+            for (E key : redLeafKeys) {
+                RainbowNode<E> parent = bottomLevel.get(i / 2);
+                if (i % 2 == 0)
+                    parent.setLeft(new RainbowNode<>(key, 1, k));
+                else
+                    parent.setRight(new RainbowNode<>(key, 1, k));
+                values.add(key);
+                i++;
+            }
 
             // maximize the amount of red nodes
-            for (int i = 0; i < cbtDepth / 2; i++)
+            for (i = 0; i < cbtDepth / 2; i++)
                 for (RainbowNode<E> node : cbtRedNodes) {
                     // because of the way I built my cbt, I only need to check the left child
                     RainbowNode<E> left = node.getLeft();
@@ -363,6 +370,9 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         Stack<RainbowNode<E>> parents = new Stack<>();
         RainbowNode<E> lastNode = root;
         int parentDepth = 0;
+
+        if (depth == parentDepth)
+            bottomLevel.add(root);
 
         for (E key : keys) {
             RainbowNode<E> parent;
