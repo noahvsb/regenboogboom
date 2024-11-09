@@ -87,7 +87,7 @@ public class SimpleTest {
         RainbowTree<Integer> tree = new RainbowTree<>(k);
 
         // add
-        int a = 50;
+        int a = 49;
 
         Assertions.assertTrue(add(tree, false, generateKeys(a, ADD_SEED)));
 

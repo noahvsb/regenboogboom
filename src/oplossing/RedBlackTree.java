@@ -350,27 +350,30 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
             }
 
             // build complete binary tree using the other keys
-            buildCompleteBinaryTree(otherKeys, cbtDepth);
+            List<RedBlackNode<E>> bottomLevel = buildCompleteBinaryTree(otherKeys, cbtDepth);
 
             // add red leafs with some slight changes to minimize the amount of red nodes
-            List<RedBlackNode<E>> path = null;
             int i = 1;
             for (E key : redLeafKeys) {
+                RedBlackNode<E> parent = bottomLevel.get((i - 1) / 2);
                 if (i % 2 == 1) {
-                    path = getSearchPath(key);
-                    path.getLast().setLeft(new RedBlackNode<>(key, 1));
+                    parent.setLeft(new RedBlackNode<>(key, 1));
                 } else {
-                    RedBlackNode<E> parent = path.removeLast();
                     parent.setRight(new RedBlackNode<>(key, 0));
                     parent.getLeft().setColour(0);
                     parent.setColour(1);
-                    int j = 1;
-                    while ((i / Math.pow(2, j)) % 2 == 0) {
-                        parent.setColour(0);
-                        parent = path.removeLast();
-                        parent.getLeft().setColour(0);
-                        parent.setColour(1);
-                        j++;
+                    if ((i / 2) % 2 == 0) {
+                        List<RedBlackNode<E>> path = getSearchPath(parent.getValue());
+                        path.removeLast();
+
+                        int j = 1;
+                        while ((i / Math.pow(2, j)) % 2 == 0) {
+                            parent.setColour(0);
+                            parent = path.removeLast();
+                            parent.getLeft().setColour(0);
+                            parent.setColour(1);
+                            j++;
+                        }
                     }
                 }
                 values.add(key);
@@ -384,7 +387,9 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         return (int) Math.floor(Math.log(n) / Math.log(2));
     }
 
-    private void buildCompleteBinaryTree(List<E> keys, int depth) {
+    private List<RedBlackNode<E>> buildCompleteBinaryTree(List<E> keys, int depth) {
+        List<RedBlackNode<E>> bottomLevel = new ArrayList<>();
+
         // perform a special sort (see specialSort() for more details)
         keys = specialSort(keys);
 
@@ -418,10 +423,15 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
                 parents.push(parent);
             }
 
+            if (depth == parentDepth + 1)
+                bottomLevel.add(node);
+
             values.add(key);
             lastNode = node;
             parentDepth++;
         }
+
+        return bottomLevel;
     }
 
     // the amount of elements in a list needs to be equal to 2^n - 1 with n >= 1 (n is going to be the depth + 1)

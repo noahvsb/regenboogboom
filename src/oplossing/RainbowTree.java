@@ -321,7 +321,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
             List<RainbowNode<E>> cbtRedNodes = new ArrayList<>(); // all red nodes in the complete binary tree, except the ones on the bottom level, if there are any
 
             // build complete binary tree using the other keys
-            buildCompleteBinaryTree(otherKeys, cbtDepth, redLeafAmount, cbtRedNodes);
+            List<RainbowNode<E>> bottomLevel = buildCompleteBinaryTree(otherKeys, cbtDepth, redLeafAmount, cbtRedNodes);
 
             // add red leafs with some slight changes to minimize the amount of red nodes
             for (E key : redLeafKeys)
@@ -348,8 +348,10 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         return (int) Math.floor(Math.log(n) / Math.log(2));
     }
 
-    private void buildCompleteBinaryTree(List<E> keys, int depth, int a, List<RainbowNode<E>> redNodes) {
-        // perform a special sort (see specialSort() for more details)
+    private List<RainbowNode<E>> buildCompleteBinaryTree(List<E> keys, int depth, int a, List<RainbowNode<E>> redNodes) {
+        List<RainbowNode<E>> bottomLevel = new ArrayList<>();
+
+                // perform a special sort (see specialSort() for more details)
         keys = specialSort(keys);
 
         // set the root
@@ -387,13 +389,17 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
 
             parents.push(parent);
 
-            if (colour == 1 && depth != parentDepth)
+            if (colour == 1 && depth != parentDepth + 1)
                 redNodes.add(node);
-            lastNode = node;
+            else if (depth == parentDepth + 1)
+                bottomLevel.add(node);
 
             values.add(key);
+            lastNode = node;
             parentDepth++;
         }
+
+        return bottomLevel;
     }
 
     // the amount of elements in a list needs to be equal to 2^n - 1 with n >= 1 (n is going to be the depth + 1)
