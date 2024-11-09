@@ -2,11 +2,9 @@ package oplossing;
 
 import opgave.Node;
 import opgave.SearchTree;
+import visualizer.IntegerTreeVisualizer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
 
@@ -320,10 +318,10 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
                     otherKeys.add(keys.get(i));
             }
 
-            List<RainbowNode<E>> cbtNodes = new ArrayList<>();
+            List<RainbowNode<E>> cbtRedNodes = new ArrayList<>(); // all red nodes in the complete binary tree, except the ones on the bottom level, if there are any
 
             // build complete binary tree using the other keys
-            buildCompleteBinaryTree(otherKeys, cbtDepth, redLeafAmount, cbtNodes);
+            buildCompleteBinaryTree(otherKeys, cbtDepth, redLeafAmount, cbtRedNodes);
 
             // add red leafs with some slight changes to minimize the amount of red nodes
             for (E key : redLeafKeys)
@@ -331,18 +329,17 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
 
             // maximize the amount of red nodes
             for (int i = 0; i < cbtDepth / 2; i++)
-                for (RainbowNode<E> node : cbtNodes)
-                    if (node.getColour() == 1) {
-                        // because of the way I built my cbt, I only need to check the left child
-                        RainbowNode<E> left = node.getLeft();
-                        if (left != null && left.getColour() == 0
-                                && (left.getLeft() == null || left.getLeft().getColour() == 0)
-                                && (left.getRight() == null || left.getRight().getColour() == 0)) {
-                            node.setColour(0);
-                            left.setColour(1);
-                            node.getRight().setColour(1);
-                        }
+                for (RainbowNode<E> node : cbtRedNodes) {
+                    // because of the way I built my cbt, I only need to check the left child
+                    RainbowNode<E> left = node.getLeft();
+                    if (left != null && left.getColour() == 0
+                            && (left.getLeft() == null || left.getLeft().getColour() == 0)
+                            && (left.getRight() == null || left.getRight().getColour() == 0)) {
+                        node.setColour(0);
+                        left.setColour(1);
+                        node.getRight().setColour(1);
                     }
+                }
         }
     }
 
@@ -351,7 +348,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         return (int) Math.floor(Math.log(n) / Math.log(2));
     }
 
-    private void buildCompleteBinaryTree(List<E> keys, int depth, int a, List<RainbowNode<E>> nodes) {
+    private void buildCompleteBinaryTree(List<E> keys, int depth, int a, List<RainbowNode<E>> redNodes) {
         // perform a special sort (see specialSort() for more details)
         keys = specialSort(keys);
 
@@ -361,31 +358,41 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         values.add(first);
 
         // add the rest like you would in a normal binary search tree
+        Stack<RainbowNode<E>> parents = new Stack<>();
+        RainbowNode<E> lastNode = root;
+        int parentDepth = 0;
+
         for (E key : keys) {
-            RainbowNode<E> parent = root;
-            int nodeDepth = 1;
-            boolean added = false;
-            while (!added) {
-                boolean left = parent.getValue().compareTo(key) > 0;
-                if ((left && parent.getLeft() == null) || (!left && parent.getRight() == null)) {
-                    int colour = (a == 0 && depth % 2 == nodeDepth % 2) || (a != 0 && depth % 2 != nodeDepth % 2) ? 1 : 0;
-                    RainbowNode<E> node = new RainbowNode<>(key, colour, k);
-                    if (left)
-                        parent.setLeft(node);
-                    else
-                        parent.setRight(node);
-                    if (nodeDepth != depth)
-                        nodes.add(node);
-                    added = true;
-                } else {
-                    if (left)
-                        parent = parent.getLeft();
-                    else
-                        parent = parent.getRight();
+            RainbowNode<E> parent;
+            boolean left;
+            if (parentDepth != depth && lastNode.getLeft() == null) {
+                parent = lastNode;
+                left = true;
+            } else {
+                parentDepth--;
+                parent = parents.pop();
+                while (parent.getRight() != null) {
+                    parentDepth--;
+                    parent = parents.pop();
                 }
-                nodeDepth++;
+                left = false;
             }
+
+            int colour = (a == 0 && depth % 2 != parentDepth % 2) || (a != 0 && depth % 2 == parentDepth % 2) ? 1 : 0;
+            RainbowNode<E> node = new RainbowNode<>(key, colour, k);
+            if (left)
+                parent.setLeft(node);
+            else
+                parent.setRight(node);
+
+            parents.push(parent);
+
+            if (colour == 1 && depth != parentDepth)
+                redNodes.add(node);
+            lastNode = node;
+
             values.add(key);
+            parentDepth++;
         }
     }
 

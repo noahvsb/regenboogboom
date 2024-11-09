@@ -396,20 +396,20 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
         // add the rest like you would in a normal binary search tree
         Stack<RedBlackNode<E>> parents = new Stack<>();
         RedBlackNode<E> lastNode = root;
-        int currentDepth = 0;
+        int parentDepth = 0;
 
         for (E key : keys) {
             RedBlackNode<E> node = new RedBlackNode<>(key, 0);
 
-            if (currentDepth != depth && lastNode.getLeft() == null) {
+            if (parentDepth != depth && lastNode.getLeft() == null) {
                 lastNode.setLeft(node);
 
                 parents.push(lastNode);
             } else {
-                currentDepth--;
+                parentDepth--;
                 RedBlackNode<E> parent = parents.pop();
                 while (parent.getRight() != null) {
-                    currentDepth--;
+                    parentDepth--;
                     parent = parents.pop();
                 }
 
@@ -417,9 +417,10 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
                 parents.push(parent);
             }
+
             values.add(key);
             lastNode = node;
-            currentDepth++;
+            parentDepth++;
         }
     }
 
