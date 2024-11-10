@@ -2,10 +2,12 @@ package oplossing;
 
 import opgave.Node;
 
-public abstract class ColouredNode<E extends Comparable<E>> implements Node<E> {
+public class ColouredNode<E extends Comparable<E>> implements Node<E> {
     private E key;
     protected int colour;
     private boolean isRemoved;
+    private ColouredNode<E> left;
+    private ColouredNode<E> right;
 
     public ColouredNode(E key, int colour) {
         this.key = key;
@@ -41,10 +43,22 @@ public abstract class ColouredNode<E extends Comparable<E>> implements Node<E> {
     }
 
     @Override
-    abstract public ColouredNode<E> getLeft();
+    public ColouredNode<E> getLeft() {
+        return left;
+    }
+
+    public void setLeft(ColouredNode<E> left) {
+        this.left = left;
+    }
 
     @Override
-    abstract public ColouredNode<E> getRight();
+    public ColouredNode<E> getRight() {
+        return right;
+    }
+
+    public void setRight(ColouredNode<E> right) {
+        this.right = right;
+    }
 
     public int childrenCount() {
         int count = 0;

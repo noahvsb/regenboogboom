@@ -1,51 +1,14 @@
 package oplossing;
 
-import opgave.Node;
-import opgave.SearchTree;
-
 import java.util.*;
 
-public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
+public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
 
     private final int k;
 
-    private RainbowNode<E> root;
-    private final HashSet<E> values;
-    private int removedAmount;
-
     public RainbowTree(int k) {
+        super();
         this.k = k;
-
-        root = null;
-        values = new HashSet<>();
-        removedAmount = 0;
-    }
-
-    @Override
-    public int size() {
-        return values.size();
-    }
-
-    @Override
-    public boolean search(E key) {
-        return values.contains(key);
-    }
-
-    public List<RainbowNode<E>> getSearchPath(E key) {
-        RainbowNode<E> currentNode = root;
-        List<RainbowNode<E>> searchPath = new ArrayList<>();
-
-        while (currentNode != null) {
-            searchPath.add(currentNode);
-            if (key.compareTo(currentNode.getValue()) < 0)
-                currentNode = currentNode.getLeft();
-            else if (key.compareTo(currentNode.getValue()) > 0)
-                currentNode = currentNode.getRight();
-            else
-                currentNode = null;
-        }
-
-        return searchPath;
     }
 
     @Override
@@ -56,13 +19,13 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
 
         // tree doesn't have a root yet
         if (root == null) {
-            root = new RainbowNode<>(key, 0, k);
+            root = new ColouredNode<>(key, 0);
             values.add(root.getValue());
             return true;
         }
 
-        List<RainbowNode<E>> path = getSearchPath(key);
-        RainbowNode<E> parent = path.getLast();
+        List<ColouredNode<E>> path = getSearchPath(key);
+        ColouredNode<E> parent = path.getLast();
 
         // node with the key is a tombstone
         if (parent.getValue().equals(key)) {
@@ -74,7 +37,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         // no issue
         int parentColour = parent.getColour();
         if (parentColour != k - 1) {
-            RainbowNode<E> node = new RainbowNode<>(key, parentColour + 1, k);
+            ColouredNode<E> node = new ColouredNode<>(key, parentColour + 1);
             if (key.compareTo(parent.getValue()) < 0)
                 parent.setLeft(node);
             else
@@ -84,9 +47,9 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         }
 
         // issue
-        RainbowNode<E> issueSource = new RainbowNode<>(key, 1, k);
-        RainbowNode<E> p1 = path.removeLast();
-        RainbowNode<E> p2 = path.removeLast();
+        ColouredNode<E> issueSource = new ColouredNode<>(key, 1);
+        ColouredNode<E> p1 = path.removeLast();
+        ColouredNode<E> p2 = path.removeLast();
 
         fix2WrongColoursProblem(path, issueSource, p1, p2);
 
@@ -95,14 +58,14 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
     }
 
     // make sure the issueSource, p1 and p2 nodes are removed from the path
-    private void fix2WrongColoursProblem(List<RainbowNode<E>> path, RainbowNode<E> issueSource, RainbowNode<E> p1, RainbowNode<E> p2) {
+    private void fix2WrongColoursProblem(List<ColouredNode<E>> path, ColouredNode<E> issueSource, ColouredNode<E> p1, ColouredNode<E> p2) {
         boolean problem = true;
 
         while (problem) {
-            List<RainbowNode<E>> nodes = orderNodes(issueSource, p1, p2);
-            RainbowNode<E> n1 = nodes.getFirst();
-            RainbowNode<E> n2 = nodes.get(1);
-            RainbowNode<E> n3 = nodes.get(2);
+            List<ColouredNode<E>> nodes = orderNodes(issueSource, p1, p2);
+            ColouredNode<E> n1 = nodes.getFirst();
+            ColouredNode<E> n2 = nodes.get(1);
+            ColouredNode<E> n3 = nodes.get(2);
 
             // set colours
             n1.setColour(1);
@@ -113,7 +76,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
             if (path.isEmpty()) {
                 root = n1;
             } else {
-                RainbowNode<E> p3 = path.getLast();
+                ColouredNode<E> p3 = path.getLast();
                 if (n1.getValue().compareTo(p3.getValue()) < 0)
                     p3.setLeft(n1);
                 else
@@ -153,37 +116,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         }
     }
 
-    // get 3 nodes and order them + their children in the following way:
-    //    1
-    //  2   3
-    // 4 5 6 7 <- their children
-    private List<RainbowNode<E>> orderNodes(RainbowNode<E> n1, RainbowNode<E> n2, RainbowNode<E> n3) {
-        if (n1.getValue().compareTo(n2.getValue()) < 0) {
-            if (n1.getValue().compareTo(n3.getValue()) < 0)
-                return Arrays.asList(n2, n1, n3, n1.getLeft(), n1.getRight(), n2.getRight(), n3.getRight());
-            return Arrays.asList(n1, n3, n2, n3.getLeft(), n1.getLeft(), n1.getRight(), n2.getRight());
-        }
-        if (n1.getValue().compareTo(n3.getValue()) < 0)
-            return Arrays.asList(n1, n2, n3, n2.getLeft(), n1.getLeft(), n1.getRight(), n3.getRight());
-        return Arrays.asList(n2, n3, n1, n3.getLeft(), n2.getLeft(), n1.getLeft(), n1.getRight());
-    }
-
-    @Override
-    public boolean remove(E key) {
-        // key exists
-        if (search(key)) {
-            List<RainbowNode<E>> path = getSearchPath(key);
-            RainbowNode<E> node = path.removeLast();
-            RainbowNode<E> parent = path.isEmpty() ? null : path.getLast();
-
-            return removeSpecialCases(node, parent);
-        }
-
-        // key doesn't exist
-        return false;
-    }
-
-    private boolean removeSpecialCases(RainbowNode<E> node, RainbowNode<E> parent) {
+    protected boolean removeSpecialCases(ColouredNode<E> node, ColouredNode<E> parent) {
         // root in a tree with 1 node
         if (parent == null && node.isLeaf()) {
             root = null;
@@ -204,7 +137,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         // black node with 1 child => remove with changes in the tree
         if (node.getColour() == 0 && node.childrenCount() == 1) {
             // grab the child
-            RainbowNode<E> child = node.getLeft() != null ? node.getLeft() : node.getRight();
+            ColouredNode<E> child = node.getLeft() != null ? node.getLeft() : node.getRight();
 
             // attach to the parent instead of the node we want to remove
             if (parent == null)
@@ -228,61 +161,12 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         }
 
         // intern node => swap with biggest in the left or smallest in the right subtree and call remove recursively
-
-        // get the necessary nodes to perform the swap
-        RainbowNode<E> swapNodeParent = node;
-        boolean searchLeft = node.getLeft() != null;
-        RainbowNode<E> swapNode = searchLeft ? node.getLeft() : node.getRight();
-
-        boolean found = false;
-        while (!found) {
-            if (searchLeft) {
-                if (swapNode.getRight() != null) {
-                    swapNodeParent = swapNode;
-                    swapNode = swapNode.getRight();
-                } else
-                    found = true;
-            } else {
-                if (swapNode.getLeft() != null) {
-                    swapNodeParent = swapNode;
-                    swapNode = swapNode.getLeft();
-                } else
-                    found = true;
-            }
-        }
-
-        // if swapNode and swapNodeParent are black, the node wouldn't actually be removed (tombstone)
-        // and the tree wouldn't be a search tree anymore
-        // so the node gets turned into a tombstone directly instead of a swap and then a tombstone
-        if (swapNode.getColour() == 0 && swapNode.isLeaf()) {
-            tombstone(node);
-            return true;
-        }
-
-        // perform swap
-        E key = node.getValue();
-        node.setValue(swapNode.getValue());
-        swapNode.setValue(key);
-
-        if (swapNode.isRemoved()) {
-            node.changeRemoveState();
-            swapNode.changeRemoveState();
-        }
-
-        // recursion
-        return removeSpecialCases(swapNode, swapNodeParent != swapNode ? swapNodeParent : node);
+        return swapInternNode(node);
     }
 
-    private void tombstone(RainbowNode<E> node) {
-        node.changeRemoveState();
-        values.remove(node.getValue());
-
-        // rebuild if half or more are tombstones
-        removedAmount++;
-        if (removedAmount >= size()) {
-            removedAmount = 0;
-            rebuild();
-        }
+    @Override
+    boolean tombstoneCheck(ColouredNode<E> swapNode, ColouredNode<E> swapNodeParent) {
+        return swapNode.getColour() == 0 && swapNode.isLeaf();
     }
 
     @Override
@@ -317,28 +201,28 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
                     otherKeys.add(keys.get(i));
             }
 
-            List<RainbowNode<E>> cbtRedNodes = new ArrayList<>(); // all red nodes in the complete binary tree, except the ones on the bottom level, if there are any
+            List<ColouredNode<E>> cbtRedNodes = new ArrayList<>(); // all red nodes in the complete binary tree, except the ones on the bottom level, if there are any
 
             // build complete binary tree using the other keys
-            List<RainbowNode<E>> bottomLevel = buildCompleteBinaryTree(otherKeys, cbtDepth, redLeafAmount, cbtRedNodes);
+            List<ColouredNode<E>> bottomLevel = buildCompleteBinaryTree(otherKeys, cbtDepth, redLeafAmount, cbtRedNodes);
 
             // add red leafs with some slight changes to minimize the amount of red nodes
             int i = 0;
             for (E key : redLeafKeys) {
-                RainbowNode<E> parent = bottomLevel.get(i / 2);
+                ColouredNode<E> parent = bottomLevel.get(i / 2);
                 if (i % 2 == 0)
-                    parent.setLeft(new RainbowNode<>(key, 1, k));
+                    parent.setLeft(new ColouredNode<>(key, 1));
                 else
-                    parent.setRight(new RainbowNode<>(key, 1, k));
+                    parent.setRight(new ColouredNode<>(key, 1));
                 values.add(key);
                 i++;
             }
 
             // maximize the amount of red nodes
             for (i = 0; i < cbtDepth / 2; i++)
-                for (RainbowNode<E> node : cbtRedNodes) {
+                for (ColouredNode<E> node : cbtRedNodes) {
                     // because of the way I built my cbt, I only need to check the left child
-                    RainbowNode<E> left = node.getLeft();
+                    ColouredNode<E> left = node.getLeft();
                     if (left != null && left.getColour() == 0
                             && (left.getLeft() == null || left.getLeft().getColour() == 0)
                             && (left.getRight() == null || left.getRight().getColour() == 0)) {
@@ -350,32 +234,27 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         }
     }
 
-    // always rounded down
-    private int log2(int n) {
-        return (int) Math.floor(Math.log(n) / Math.log(2));
-    }
-
-    private List<RainbowNode<E>> buildCompleteBinaryTree(List<E> keys, int depth, int a, List<RainbowNode<E>> redNodes) {
-        List<RainbowNode<E>> bottomLevel = new ArrayList<>();
+    private List<ColouredNode<E>> buildCompleteBinaryTree(List<E> keys, int depth, int a, List<ColouredNode<E>> redNodes) {
+        List<ColouredNode<E>> bottomLevel = new ArrayList<>();
 
         // perform a special sort (see specialSort() for more details)
         keys = specialSort(keys);
 
         // set the root
         E first = keys.removeFirst();
-        root = new RainbowNode<>(first, 0, k);
+        root = new ColouredNode<>(first, 0);
         values.add(first);
 
         // add the rest like you would in a normal binary search tree
-        Stack<RainbowNode<E>> parents = new Stack<>();
-        RainbowNode<E> lastNode = root;
+        Stack<ColouredNode<E>> parents = new Stack<>();
+        ColouredNode<E> lastNode = root;
         int parentDepth = 0;
 
         if (depth == parentDepth)
-            bottomLevel.add(root);
+            bottomLevel.add(lastNode);
 
         for (E key : keys) {
-            RainbowNode<E> parent;
+            ColouredNode<E> parent;
             boolean left;
             if (parentDepth != depth && lastNode.getLeft() == null) {
                 parent = lastNode;
@@ -391,7 +270,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
             }
 
             int colour = (a == 0 && depth % 2 != parentDepth % 2) || (a != 0 && depth % 2 == parentDepth % 2) ? 1 : 0;
-            RainbowNode<E> node = new RainbowNode<>(key, colour, k);
+            ColouredNode<E> node = new ColouredNode<>(key, colour);
             if (left)
                 parent.setLeft(node);
             else
@@ -410,33 +289,5 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
         }
 
         return bottomLevel;
-    }
-
-    // the amount of elements in a list needs to be equal to 2^n - 1 with n >= 1 (n is going to be the depth + 1)
-    // start with the middle element, then the middle element of the left elements, then the middle element of those left elements ...
-    // then the middle element of the right elements ...
-    // example: [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o] => [h, d, b, a, c, f, e, g, l, j, i, k, n, m, o]
-    private List<E> specialSort(List<E> list) {
-        if (list.size() == 1)
-            return list;
-
-        List<E> sorted = new ArrayList<>();
-
-        int middle = list.size() / 2;
-        sorted.add(list.get(middle));
-        sorted.addAll(specialSort(list.subList(0, middle)));
-        sorted.addAll(specialSort(list.subList(middle + 1, list.size())));
-
-        return sorted;
-    }
-
-    @Override
-    public Node<E> root() {
-        return root;
-    }
-
-    @Override
-    public List<E> values() {
-        return values.stream().sorted().toList();
     }
 }
