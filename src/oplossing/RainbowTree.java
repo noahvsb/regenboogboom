@@ -279,7 +279,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
 
         // rebuild if half or more are tombstones
         removedAmount++;
-        if (removedAmount > size()) {
+        if (removedAmount >= size()) {
             removedAmount = 0;
             rebuild();
         }
@@ -358,7 +358,7 @@ public class RainbowTree<E extends Comparable<E>> implements SearchTree<E> {
     private List<RainbowNode<E>> buildCompleteBinaryTree(List<E> keys, int depth, int a, List<RainbowNode<E>> redNodes) {
         List<RainbowNode<E>> bottomLevel = new ArrayList<>();
 
-                // perform a special sort (see specialSort() for more details)
+        // perform a special sort (see specialSort() for more details)
         keys = specialSort(keys);
 
         // set the root

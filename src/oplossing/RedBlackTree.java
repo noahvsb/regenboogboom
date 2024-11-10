@@ -312,7 +312,7 @@ public class RedBlackTree<E extends Comparable<E>> implements SearchTree<E> {
 
         // rebuild if half or more are tombstones
         removedAmount++;
-        if (removedAmount > size()) {
+        if (removedAmount >= size()) {
             removedAmount = 0;
             rebuild();
         }
