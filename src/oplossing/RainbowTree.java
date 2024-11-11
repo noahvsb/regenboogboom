@@ -4,61 +4,13 @@ import java.util.*;
 
 public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
 
-    private final int k;
-
     public RainbowTree(int k) {
         super();
         this.k = k;
     }
 
-    @Override
-    public boolean add(E key) {
-        // node with key exists
-        if (search(key))
-            return false;
-
-        // tree doesn't have a root yet
-        if (root == null) {
-            root = new ColouredNode<>(key, 0);
-            values.add(root.getValue());
-            return true;
-        }
-
-        List<ColouredNode<E>> path = getSearchPath(key);
-        ColouredNode<E> parent = path.getLast();
-
-        // node with the key is a tombstone
-        if (parent.getValue().equals(key)) {
-            parent.changeRemoveState();
-            values.add(parent.getValue());
-            return true;
-        }
-
-        // no issue
-        int parentColour = parent.getColour();
-        if (parentColour != k - 1) {
-            ColouredNode<E> node = new ColouredNode<>(key, parentColour + 1);
-            if (key.compareTo(parent.getValue()) < 0)
-                parent.setLeft(node);
-            else
-                parent.setRight(node);
-            values.add(node.getValue());
-            return true;
-        }
-
-        // issue
-        ColouredNode<E> issueSource = new ColouredNode<>(key, 1);
-        ColouredNode<E> p1 = path.removeLast();
-        ColouredNode<E> p2 = path.removeLast();
-
-        fix2WrongColoursProblem(path, issueSource, p1, p2);
-
-        values.add(issueSource.getValue());
-        return true;
-    }
-
     // make sure the issueSource, p1 and p2 nodes are removed from the path
-    private void fix2WrongColoursProblem(List<ColouredNode<E>> path, ColouredNode<E> issueSource, ColouredNode<E> p1, ColouredNode<E> p2) {
+    protected void fix2WrongColoursProblem(List<ColouredNode<E>> path, ColouredNode<E> issueSource, ColouredNode<E> p1, ColouredNode<E> p2, boolean allowOptimized) {
         boolean problem = true;
 
         while (problem) {

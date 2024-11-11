@@ -6,55 +6,11 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
 
     public RedBlackTree() {
         super();
-    }
-
-    @Override
-    public boolean add(E key) {
-        // node with key exists
-        if (search(key))
-            return false;
-
-        // tree doesn't have a root yet
-        if (root == null) {
-            root = new ColouredNode<>(key, 0);
-            values.add(root.getValue());
-            return true;
-        }
-
-        List<ColouredNode<E>> path = getSearchPath(key);
-        ColouredNode<E> parent = path.getLast();
-
-        // node with the key is a tombstone
-        if (parent.getValue().equals(key)) {
-            parent.changeRemoveState();
-            values.add(parent.getValue());
-            return true;
-        }
-
-        // no issue
-        if (parent.getColour() == 0) {
-            ColouredNode<E> node = new ColouredNode<>(key, 1);
-            if (key.compareTo(parent.getValue()) < 0)
-                parent.setLeft(node);
-            else
-                parent.setRight(node);
-            values.add(node.getValue());
-            return true;
-        }
-
-        // issue
-        ColouredNode<E> issueSource = new ColouredNode<>(key, 1);
-        ColouredNode<E> p1 = path.removeLast();
-        ColouredNode<E> p2 = path.removeLast();
-
-        fix2RedsProblem(path, issueSource, p1, p2, true);
-
-        values.add(issueSource.getValue());
-        return true;
+        k = 2;
     }
 
     // make sure the issueSource, p1 and p2 nodes are removed from the path
-    private void fix2RedsProblem(List<ColouredNode<E>> path, ColouredNode<E> issueSource, ColouredNode<E> p1, ColouredNode<E> p2, boolean allowOptimized) {
+    protected void fix2WrongColoursProblem(List<ColouredNode<E>> path, ColouredNode<E> issueSource, ColouredNode<E> p1, ColouredNode<E> p2, boolean allowOptimized) {
         boolean problem = true;
 
         while (problem) {
@@ -199,7 +155,7 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
             ColouredNode<E> issueSource = path.removeLast();
             ColouredNode<E> p1 = path.removeLast();
             ColouredNode<E> p2 = path.removeLast();
-            fix2RedsProblem(path, issueSource, p1, p2, false);
+            fix2WrongColoursProblem(path, issueSource, p1, p2, false);
         }
     }
 
