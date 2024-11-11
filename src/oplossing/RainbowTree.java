@@ -77,7 +77,7 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
         }
 
         // non-black leaf => remove safely
-        if (node.getColour() != 0 && node.isLeaf()) {
+        if (node.getColour() != 0 && node.isLeaf() && parent != null) {
             if (parent.getLeft() == node)
                 parent.setLeft(null);
             else
@@ -86,21 +86,21 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
             return true;
         }
 
-        // black node with 1 child => remove with changes in the tree
-        if (node.getColour() == 0 && node.childrenCount() == 1) {
+        // node with 1 child => remove with changes in the tree
+        if (node.childrenCount() == 1) {
             // grab the child
             ColouredNode<E> child = node.getLeft() != null ? node.getLeft() : node.getRight();
 
             // attach to the parent instead of the node we want to remove
             if (parent == null)
                 root = child;
-            else if (parent.getLeft().equals(node))
+            else if (parent.getLeft() == node)
                 parent.setLeft(child);
             else
                 parent.setRight(child);
 
-            // set child's colour to black (child will always be red, otherwise one of the conditions isn't met)
-            child.setColour(0);
+            // set child's colour to the node colour
+            child.setColour(node.getColour());
 
             values.remove(node.getValue());
             return true;
@@ -112,7 +112,7 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
             return true;
         }
 
-        // intern node => swap with biggest in the left or smallest in the right subtree and call remove recursively
+        // intern node => swap with biggest in the left subtree and call remove recursively
         return swapInternNode(node);
     }
 

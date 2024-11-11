@@ -58,7 +58,7 @@ public abstract class ColouredTree<E extends Comparable<E>> implements SearchTre
         // tree doesn't have a root yet
         if (root == null) {
             root = new ColouredNode<>(key, 0);
-            values.add(root.getValue());
+            values.add(key);
             return true;
         }
 
@@ -68,7 +68,7 @@ public abstract class ColouredTree<E extends Comparable<E>> implements SearchTre
         // node with the key is a tombstone
         if (parent.getValue().equals(key)) {
             parent.changeRemoveState();
-            values.add(parent.getValue());
+            values.add(key);
             return true;
         }
 
@@ -80,7 +80,7 @@ public abstract class ColouredTree<E extends Comparable<E>> implements SearchTre
                 parent.setLeft(node);
             else
                 parent.setRight(node);
-            values.add(node.getValue());
+            values.add(key);
             return true;
         }
 
@@ -89,9 +89,9 @@ public abstract class ColouredTree<E extends Comparable<E>> implements SearchTre
         ColouredNode<E> p1 = path.removeLast();
         ColouredNode<E> p2 = path.removeLast();
 
-        fix2WrongColoursProblem(path, issueSource, p1, p2, true);
+        fix2WrongColoursProblem(path, issueSource, p1, p2, true); // we'll fix the problem even though it hasn't occurred yet, but adding the issue source already is unnecessary
 
-        values.add(issueSource.getValue());
+        values.add(key);
         return true;
     }
 
@@ -132,24 +132,15 @@ public abstract class ColouredTree<E extends Comparable<E>> implements SearchTre
     protected boolean swapInternNode(ColouredNode<E> node) {
         // get the necessary nodes to perform the swap
         ColouredNode<E> swapNodeParent = node;
-        boolean searchLeft = swapNodeParent.getLeft() != null;
-        ColouredNode<E> swapNode = searchLeft ? swapNodeParent.getLeft() : swapNodeParent.getRight();
+        ColouredNode<E> swapNode = swapNodeParent.getLeft();
 
         boolean found = false;
         while (!found) {
-            if (searchLeft) {
-                if (swapNode.getRight() != null) {
-                    swapNodeParent = swapNode;
-                    swapNode = swapNode.getRight();
-                } else
-                    found = true;
-            } else {
-                if (swapNode.getLeft() != null) {
-                    swapNodeParent = swapNode;
-                    swapNode = swapNode.getLeft();
-                } else
-                    found = true;
-            }
+            if (swapNode.getRight() != null) {
+                swapNodeParent = swapNode;
+                swapNode = swapNode.getRight();
+            } else
+                found = true;
         }
 
         // if swapNode and swapNodeParent are black, the node wouldn't actually be removed (tombstone)

@@ -91,13 +91,16 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
             return true;
         }
 
-        // black node with 1 child and red parent => remove with changes in the tree
-        if (node.getColour() == 0 && node.childrenCount() == 1 && parent != null && parent.getColour() == 1) {
+        // node with 1 child  => remove with changes in the tree
+        // as long as the tree meets the conditions, the node will be black
+        if (node.childrenCount() == 1) {
             // grab the child
             ColouredNode<E> child = node.getLeft() != null ? node.getLeft() : node.getRight();
 
             // attach to the parent instead of the node we want to remove
-            if (parent.getLeft() == node)
+            if (parent == null)
+                root = child;
+            else if (parent.getLeft() == node)
                 parent.setLeft(child);
             else
                 parent.setRight(child);
@@ -133,7 +136,7 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
             return true;
         }
 
-        // intern node => swap with biggest in the left or smallest in the right subtree and call remove recursively
+        // intern node => swap with biggest in the left subtree and call remove recursively
         return swapInternNode(node);
     }
 
@@ -151,6 +154,8 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
 
         // problem occurs
         if (child != null && child.getColour() == 1) {
+            // I chose clean code over efficiëncy
+            // the less efficiëncy is hardly noticeable tho
             List<ColouredNode<E>> path = getSearchPath(child.getValue());
             ColouredNode<E> issueSource = path.removeLast();
             ColouredNode<E> p1 = path.removeLast();
@@ -203,6 +208,8 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
                     parent.getLeft().setColour(0);
                     parent.setColour(1);
                     if ((i / 2) % 2 == 0) {
+                        // I chose clean code over efficiëncy
+                        // the less efficiëncy is hardly noticeable tho
                         List<ColouredNode<E>> path = getSearchPath(parent.getValue());
                         path.removeLast();
 

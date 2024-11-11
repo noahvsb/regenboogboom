@@ -65,7 +65,7 @@ public class SimpleTest {
         // remove
         int r = 50;
 
-        Assertions.assertTrue(TestHelpFunctions.remove(tree, true, TestHelpFunctions.generateKeys(a, REMOVE_SEED)));
+        Assertions.assertTrue(TestHelpFunctions.remove(tree, true, TestHelpFunctions.generateKeys(r, REMOVE_SEED)));
 
         Assertions.assertEquals(a - r, tree.size());
     }
