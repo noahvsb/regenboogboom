@@ -11,7 +11,7 @@ import static visualizer.IntegerTreeVisualizer.maxDepth;
 public class TestHelpFunctions {
 
     // generate keys from 1 to n (inclusive)
-    public static int[] generateKeys(int n, int seed) {
+    private static int[] generateKeys(int n, int seed) {
         List<Integer> keysList = new ArrayList<>();
         for (int i = 1; i <= n; i++)
             keysList.add(i);
@@ -20,7 +20,8 @@ public class TestHelpFunctions {
     }
 
     // add multiple keys at once in an integer tree, stops if a key can't be added
-    public static boolean add(SearchTree<Integer> tree, boolean print, int... keys) {
+    public static boolean add(SearchTree<Integer> tree, int n, int seed, boolean print) {
+        int[] keys = generateKeys(n, seed);
         for (int key : keys) {
             if (!tree.add(key)) {
                 System.err.println("Adding of " + key + " failed");
@@ -37,7 +38,8 @@ public class TestHelpFunctions {
     }
 
     // remove multiple keys at once in an integer tree, stops if a key can't be removed
-    public static boolean remove(SearchTree<Integer> tree, boolean print, int... keys) {
+    public static boolean remove(SearchTree<Integer> tree, int n, int seed, boolean print) {
+        int[] keys = generateKeys(n, seed);
         for (int key : keys) {
             if (!tree.remove(key)) {
                 System.err.println("Removal of " + key + " failed");
@@ -53,11 +55,37 @@ public class TestHelpFunctions {
         return true;
     }
 
+    // generate random keys with a bound, add by default, but if you can't, remove it instead
+    public static boolean mix(SearchTree<Integer> tree, int n, int max, int seed, boolean print) {
+        Random r = new Random(seed);
+
+        for (int i = 0; i < n; i++) {
+            int key = r.nextInt(max);
+
+            // add
+            if (tree.add(key)) {
+                if (print) {
+                    System.out.println("Added " + key);
+                    IntegerTreeVisualizer.print(tree);
+                }
+            }
+            // remove
+            else {
+                tree.remove(key);
+                if (print) {
+                    System.out.println("Removed " + key);
+                    IntegerTreeVisualizer.print(tree);
+                }
+            }
+
+            if (!checkConditions(tree))
+                return false;
+        }
+
+        return true;
+    }
+
     // check if a tree meets the conditions
-    // 0 = meets the conditions
-    // 1 = root is not black
-    // 2 = there's a non-black node with incorrect children
-    // 3 = not every path from the root to a null-pointer has the same amount of black nodes
     public static boolean checkConditions(SearchTree<Integer> tree) {
         if (tree.root() == null)
             return true;

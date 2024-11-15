@@ -2,7 +2,6 @@ package visualizer;
 
 import opgave.Node;
 import opgave.SearchTree;
-import oplossing.RainbowTree;
 
 import java.util.*;
 

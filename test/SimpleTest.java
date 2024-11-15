@@ -9,6 +9,7 @@ public class SimpleTest {
 
     private static final int ADD_SEED = 123;
     private static final int REMOVE_SEED = 456;
+    private static final int MIX_SEED = 789;
 
     @Test
     public void RedBlackTreeAddRemove() {
@@ -17,16 +18,26 @@ public class SimpleTest {
         // add
         int a = 50;
 
-        Assertions.assertTrue(TestHelpFunctions.add(tree, true, TestHelpFunctions.generateKeys(a, ADD_SEED)));
+        Assertions.assertTrue(TestHelpFunctions.add(tree, a, ADD_SEED, true));
 
         Assertions.assertEquals(a, tree.size());
 
         // remove
         int r = 50;
 
-        Assertions.assertTrue(TestHelpFunctions.remove(tree, true, TestHelpFunctions.generateKeys(r, REMOVE_SEED)));
+        Assertions.assertTrue(TestHelpFunctions.remove(tree, r, REMOVE_SEED, true));
 
         Assertions.assertEquals(a - r, tree.size());
+    }
+
+    @Test
+    public void RedBlackTreeMix() {
+        RedBlackTree<Integer> tree = new RedBlackTree<>();
+
+        int n = 150;
+        int max = 50;
+
+        Assertions.assertTrue(TestHelpFunctions.mix(tree, n, max, MIX_SEED, true));
     }
 
     @Test
@@ -36,7 +47,7 @@ public class SimpleTest {
         // add
         int a = 49;
 
-        Assertions.assertTrue(TestHelpFunctions.add(tree, false, TestHelpFunctions.generateKeys(a, ADD_SEED)));
+        Assertions.assertTrue(TestHelpFunctions.add(tree, a, ADD_SEED, false));
 
         Assertions.assertEquals(a, tree.size());
 
@@ -58,16 +69,28 @@ public class SimpleTest {
         // add
         int a = 50;
 
-        Assertions.assertTrue(TestHelpFunctions.add(tree, true, TestHelpFunctions.generateKeys(a, ADD_SEED)));
+        Assertions.assertTrue(TestHelpFunctions.add(tree, a, ADD_SEED, true));
 
         Assertions.assertEquals(a, tree.size());
 
         // remove
         int r = 50;
 
-        Assertions.assertTrue(TestHelpFunctions.remove(tree, true, TestHelpFunctions.generateKeys(r, REMOVE_SEED)));
+        Assertions.assertTrue(TestHelpFunctions.remove(tree, r, REMOVE_SEED, true));
 
         Assertions.assertEquals(a - r, tree.size());
+    }
+
+    @Test
+    public void RainbowTreeMix() {
+        int k = 5;
+
+        RainbowTree<Integer> tree = new RainbowTree<>(k);
+
+        int n = 150;
+        int max = 50;
+
+        Assertions.assertTrue(TestHelpFunctions.mix(tree, n, max, MIX_SEED, true));
     }
 
     @Test
@@ -79,7 +102,7 @@ public class SimpleTest {
         // add
         int a = 49;
 
-        Assertions.assertTrue(TestHelpFunctions.add(tree, false, TestHelpFunctions.generateKeys(a, ADD_SEED)));
+        Assertions.assertTrue(TestHelpFunctions.add(tree, a, ADD_SEED, false));
 
         Assertions.assertEquals(a, tree.size());
 
