@@ -45,17 +45,19 @@ public class SimpleTest {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
         // add
-        int a = 49;
+        int n = 49;
 
-        Assertions.assertTrue(TestHelpFunctions.add(tree, a, ADD_SEED, false));
+        Assertions.assertTrue(TestHelpFunctions.add(tree, n, ADD_SEED, false));
 
-        Assertions.assertEquals(a, tree.size());
+        Assertions.assertEquals(n, tree.size());
 
         // rebuild
         tree.rebuild();
         IntegerTreeVisualizer.print(tree);
 
-        Assertions.assertEquals(a, tree.size());
+        Assertions.assertEquals(n, tree.size());
+
+        Assertions.assertEquals(TestHelpFunctions.getSmallestAmountOfRedNodes(n), TestHelpFunctions.getAmountOfNodesOfColour(tree , 1));
 
         System.out.printf("amount of nodes of colour %d: %d\n", 1, TestHelpFunctions.getAmountOfNodesOfColour(tree, 1));
     }
@@ -100,17 +102,17 @@ public class SimpleTest {
         RainbowTree<Integer> tree = new RainbowTree<>(k);
 
         // add
-        int a = 49;
+        int n = 49;
 
-        Assertions.assertTrue(TestHelpFunctions.add(tree, a, ADD_SEED, false));
+        Assertions.assertTrue(TestHelpFunctions.add(tree, n, ADD_SEED, false));
 
-        Assertions.assertEquals(a, tree.size());
+        Assertions.assertEquals(n, tree.size());
 
         // rebuild
         tree.rebuild();
         IntegerTreeVisualizer.print(tree);
 
-        Assertions.assertEquals(a, tree.size());
+        Assertions.assertEquals(n, tree.size());
 
         System.out.printf("amount of nodes of colour %d: %d\n", 1, TestHelpFunctions.getAmountOfNodesOfColour(tree, 1));
     }

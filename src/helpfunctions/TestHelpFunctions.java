@@ -176,7 +176,7 @@ public class TestHelpFunctions {
     public static int getAmountOfNodesOfColour(SearchTree<Integer> tree, int colour) {
         int count = 0;
 
-        int maxDepth = (int) maxDepth(tree);
+        int maxDepth = maxDepth(tree);
         List<Node<Integer>> lastLevelNodes = Collections.singletonList(tree.root());
 
         for (int i = 1; i <= maxDepth; i++) {
@@ -193,4 +193,37 @@ public class TestHelpFunctions {
 
         return count;
     }
+
+    // get smallest amount of red nodes in a coloured tree with n keys
+    public static int getSmallestAmountOfRedNodes(int n) {
+        int cbtDepth = log2(n);
+        if (n != (int) Math.pow(2, cbtDepth + 1) - 1)
+            cbtDepth--;
+
+        int bottomKeysAmount = n - ((int) Math.pow(2, cbtDepth + 1) - 1);
+
+        int redKeysAmount = 0;
+
+        for (int i = cbtDepth; i >= 0; i--) {
+            int pow = (int) Math.pow(2, i);
+            if (bottomKeysAmount >= pow) {
+                redKeysAmount++;
+                bottomKeysAmount -= pow;
+            }
+        }
+
+        return redKeysAmount;
+    }
+
+    // rounded down
+    private static int log2(int n) {
+        return (int) Math.floor(Math.log(n) / Math.log(2));
+    }
+
+    public static int maxDepth(SearchTree<Integer> tree) {
+        if (tree.root() == null)
+            return 0;
+        return 2 * log2(tree.size() + 1) - 1;
+    }
+
 }

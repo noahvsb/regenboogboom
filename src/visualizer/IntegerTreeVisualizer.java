@@ -133,7 +133,7 @@ public class IntegerTreeVisualizer {
     }
 
     // always rounded
-    private static long log2(int n) {
+    public static long log2(int n) {
         return Math.round(Math.log(n) / Math.log(2));
     }
 
