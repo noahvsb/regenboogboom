@@ -53,12 +53,13 @@ public class SimpleTest {
 
         // rebuild
         tree.rebuild();
-        IntegerTreeVisualizer.print(tree);
 
+        Assertions.assertTrue(TestHelpFunctions.checkConditions(tree));
         Assertions.assertEquals(n, tree.size());
+        Assertions.assertEquals(TestHelpFunctions.getSmallestAmountOfRedNodes(n), TestHelpFunctions.getAmountOfNodesOfColour(tree , 1));
 
         System.out.printf("amount of red nodes: %d\n", TestHelpFunctions.getAmountOfNodesOfColour(tree, 1));
-        Assertions.assertEquals(TestHelpFunctions.getSmallestAmountOfRedNodes(n), TestHelpFunctions.getAmountOfNodesOfColour(tree , 1));
+        IntegerTreeVisualizer.print(tree);
     }
 
     @Test
@@ -109,10 +110,11 @@ public class SimpleTest {
 
         // rebuild
         tree.rebuild();
-        IntegerTreeVisualizer.print(tree);
 
+        Assertions.assertTrue(TestHelpFunctions.checkConditions(tree));
         Assertions.assertEquals(n, tree.size());
 
         System.out.printf("amount of nodes of colour %d: %d\n", 1, TestHelpFunctions.getAmountOfNodesOfColour(tree, 1));
+        IntegerTreeVisualizer.print(tree);
     }
 }
