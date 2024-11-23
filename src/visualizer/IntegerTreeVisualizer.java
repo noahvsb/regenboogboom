@@ -54,21 +54,7 @@ public class IntegerTreeVisualizer {
             };
         }
 
-        int max = 0;
-        for (int v : tree.values())
-            if (v > max)
-                max = v;
-
-        int digits = 0;
-        while (max != 0) {
-            max /= 10;
-            digits++;
-        }
-
-        if (digits % 2 == 1)
-            digits++;
-
-        print(tree, digits);
+        print(tree);
     }
 
     public static void print(SearchTree<Integer> tree, int digits) {

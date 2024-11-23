@@ -117,4 +117,14 @@ public class SimpleTest {
         System.out.printf("amount of nodes of colour %d: %d\n", 1, TestHelpFunctions.getAmountOfNodesOfColour(tree, 1));
         IntegerTreeVisualizer.print(tree);
     }
+
+    @Test
+    public void ChristmasTree() {
+        RainbowTree<Integer> christmasTree = new RainbowTree<>(3);
+
+        Assertions.assertTrue(TestHelpFunctions.add(christmasTree, 13, ADD_SEED, false));
+
+        IntegerTreeVisualizer.print(christmasTree, true);
+        System.out.println("Ho Ho Ho! \uD83C\uDF85");
+    }
 }

@@ -3,7 +3,6 @@ import oplossing.RainbowTree;
 import oplossing.RedBlackTree;
 import helpfunctions.TestHelpFunctions;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import visualizer.IntegerTreeVisualizer;
 

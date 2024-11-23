@@ -103,7 +103,7 @@ public class TestHelpFunctions {
             return false;
         }
 
-        int maxDepth = (int) maxDepth(tree);
+        int maxDepth = maxDepth(tree);
         int depth = 0;
         List<Node<Integer>> lastLevelNodes = Collections.singletonList(tree.root());
 
