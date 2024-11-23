@@ -57,9 +57,8 @@ public class SimpleTest {
 
         Assertions.assertEquals(n, tree.size());
 
+        System.out.printf("amount of red nodes: %d\n", TestHelpFunctions.getAmountOfNodesOfColour(tree, 1));
         Assertions.assertEquals(TestHelpFunctions.getSmallestAmountOfRedNodes(n), TestHelpFunctions.getAmountOfNodesOfColour(tree , 1));
-
-        System.out.printf("amount of nodes of colour %d: %d\n", 1, TestHelpFunctions.getAmountOfNodesOfColour(tree, 1));
     }
 
     @Test

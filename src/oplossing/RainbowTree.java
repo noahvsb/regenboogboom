@@ -142,25 +142,27 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
             // separate red leaf keys from other keys
             // the indexes for those keys are the even indexes
             // but not all of them or else you would have too many red leaf keys
-            int redLeafAmount = n - ((int) Math.pow(2, cbtDepth + 1) - 1);
+            int bottomKeysAmount = n - ((int) Math.pow(2, cbtDepth + 1) - 1);
 
-            List<E> redLeafKeys = new ArrayList<>();
-            List<E> otherKeys = new ArrayList<>();
+            List<E> bottomKeys = new ArrayList<>();
+            List<E> cbtKeys = new ArrayList<>();
             for (int i = 0; i < n; i++) {
-                if (i < 2 * redLeafAmount && i % 2 == 0)
-                    redLeafKeys.add(keys.get(i));
+                if (i < 2 * bottomKeysAmount && i % 2 == 0)
+                    bottomKeys.add(keys.get(i));
                 else
-                    otherKeys.add(keys.get(i));
+                    cbtKeys.add(keys.get(i));
             }
 
-            List<ColouredNode<E>> cbtRedNodes = new ArrayList<>(); // all red nodes in the complete binary tree, except the ones on the bottom level, if there are any
+            // all red nodes in the complete binary tree, except the ones on the bottom level, if there are any
+            // there will be nodes on the bottom level only if bottomKeysAmount == 0
+            List<ColouredNode<E>> cbtRedNodes = new ArrayList<>();
 
             // build complete binary tree using the other keys
-            List<ColouredNode<E>> bottomLevel = buildCompleteBinaryTree(otherKeys, cbtDepth, redLeafAmount, cbtRedNodes);
+            List<ColouredNode<E>> bottomLevel = buildCompleteBinaryTree(cbtKeys, cbtDepth, bottomKeysAmount, cbtRedNodes);
 
-            // add red leafs with some slight changes to minimize the amount of red nodes
+            // add red leafs
             int i = 0;
-            for (E key : redLeafKeys) {
+            for (E key : bottomKeys) {
                 ColouredNode<E> parent = bottomLevel.get(i / 2);
                 if (i % 2 == 0)
                     parent.setLeft(new ColouredNode<>(key, 1));
@@ -186,6 +188,8 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
         }
     }
 
+    // build a complete binary tree with all nodes on each level the same colour, alternating between red and black
+    // however if there are no red
     private List<ColouredNode<E>> buildCompleteBinaryTree(List<E> keys, int depth, int a, List<ColouredNode<E>> redNodes) {
         List<ColouredNode<E>> bottomLevel = new ArrayList<>();
 

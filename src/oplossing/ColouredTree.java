@@ -167,7 +167,7 @@ public abstract class ColouredTree<E extends Comparable<E>> implements SearchTre
 
     abstract boolean tombstoneCheck(ColouredNode<E> swapNode, ColouredNode<E> swapNodeParent);
 
-    protected void tombstone(ColouredNode<E> node) {
+    public void tombstone(ColouredNode<E> node) {
         node.changeRemoveState();
         values.remove(node.getValue());
 

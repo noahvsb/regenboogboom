@@ -6,8 +6,6 @@ import visualizer.IntegerTreeVisualizer;
 
 import java.util.*;
 
-import static visualizer.IntegerTreeVisualizer.maxDepth;
-
 public class TestHelpFunctions {
 
     // generate keys from 1 to n (inclusive)
@@ -20,11 +18,11 @@ public class TestHelpFunctions {
     }
 
     // add multiple keys at once in an integer tree, stops if a key can't be added
-    public static boolean add(SearchTree<Integer> tree, int n, int seed, boolean print) {
-        int[] keys = generateKeys(n, seed);
+    public static boolean add(SearchTree<Integer> tree, boolean print, int... keys) {
         for (int key : keys) {
             if (!tree.add(key)) {
-                System.err.println("Adding of " + key + " failed");
+                if (print)
+                    System.err.println("Adding of " + key + " failed");
                 return false;
             }
             if (print) {
@@ -37,12 +35,17 @@ public class TestHelpFunctions {
         return true;
     }
 
+    // first generate keys, then add them like before
+    public static boolean add(SearchTree<Integer> tree, int n, int seed, boolean print) {
+        return add(tree, print, generateKeys(n, seed));
+    }
+
     // remove multiple keys at once in an integer tree, stops if a key can't be removed
-    public static boolean remove(SearchTree<Integer> tree, int n, int seed, boolean print) {
-        int[] keys = generateKeys(n, seed);
+    public static boolean remove(SearchTree<Integer> tree, boolean print, int... keys) {
         for (int key : keys) {
             if (!tree.remove(key)) {
-                System.err.println("Removal of " + key + " failed");
+                if (print)
+                    System.err.println("Removal of " + key + " failed");
                 return false;
             }
             if (print) {
@@ -53,6 +56,11 @@ public class TestHelpFunctions {
                 return false;
         }
         return true;
+    }
+
+    // first generate keys, then remove them like before
+    public static boolean remove(SearchTree<Integer> tree, int n, int seed, boolean print) {
+        return remove(tree, print, generateKeys(n, seed));
     }
 
     // generate random keys with a bound, add by default, but if you can't, remove it instead

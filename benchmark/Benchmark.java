@@ -30,8 +30,9 @@ public class Benchmark {
     private static void redBlackTree(int t, int n) {
         // add n nodes
         long[] times = new long[t];
-        for (int i = 0; i < t; i++)
+        for (int i = 0; i < t; i++) {
             BenchmarkHelpFunctions.searchTreeAdd(new RedBlackTree<>(), times, i, BenchmarkHelpFunctions.generateKeys(n));
+        }
         long addAverage = BenchmarkHelpFunctions.getAverageTime(times);
         System.out.printf("add %d nodes:\n%dms\n", n, addAverage);
 

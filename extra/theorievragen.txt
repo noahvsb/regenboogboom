@@ -1,7 +1,15 @@
 1. rood-zwart boom T met n sleutels en m toppen, maximaal de helft zijn grafstenen (dus m >= 2 * n)
     (a) kleinst aantal rode toppen in T
+        dit kan je makkelijk bepalen met een aantal berekeningen:
+        bereken log2(n) naar beneden afgerond, we noemen dit l voor de volgende berekeningen, als n = 2^(l+1) - 1, is het kleinste aantal rode toppen gelijk aan 0, bv bij n = 15 (15 = 2^4 - 1)
+        anders bereken je n - (2^l - 1), bv bij n = 20, heb je l = 4 en krijg je 20 - (2^4 - 1) = 20 - 15 = 5 en slaat dit op in r
+        dan overloop je alle machten van 2 van l - 1 tot en met 0, noem deze m_i
+        dan indien r >= m_i, maak je r = r - m_i en is zal je 1 rode top meer hebben in de boom
+        dus bv voor onze n = 20, heb je l = 4 en r = 5, dus start je vanaf 2^3, 5 < 2^3,
+        dus we gaan door naar 2^2, 5 >= 2^2, dus r wordt 1 en we hebben 1 rode top meer,
+        dan gaan we door naar 2^1, 1 < 2^1, dus we gaan door naar 2^0, 1 >= 2^0, dus r wordt 0 en we hebben 1 rode top meer,
+        we zijn aan 0 gekomen, dus we stoppen en we zien dus dat voor een rood-zwart boom met 20 toppen het kleinst aantal rode toppen 2 is
 
-        als je met een aantal van de n sleutels
     (b) geef een algoritme
         ...
     (c) tijdscomplexiteit
