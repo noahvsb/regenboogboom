@@ -11,21 +11,77 @@
         we zijn aan 0 gekomen, dus we stoppen en we zien dus dat voor een rood-zwart boom met 20 toppen het kleinst aantal rode toppen 2 is
 
     (b) geef een algoritme
-        ...
+        we doen eerst de berekeningen voor l en r
+        dan sorteren nemen we uit de gesorteerde sleutels de eerste r sleutels op even posities, dus stel r = 2 en sleutels = [1, 2, 3, 4, 5]
+        dan krijgen we sleutels 1 en 3, met alle andere sleutels kunnen we nu een compleet binaire boom opbouwen met alleen maar zwarte toppen
+        hierbij slaan we wel de toppen op het laagste niveau op in een lijst, om deze later te kunnen gebruiken voor betere tijdsefficiëntie
+        dan gaan we over de sleutels die we daarnet hebben weggehaald en voegen we deze als rood kind toe aan de toppen uit het laagste niveau
+        dan indien i even is, bij het toevoegen van de i-de sleutel op deze manier, zullen we de ouder rood kleuren en de twee kinderen daarvan zwart kleuren
+        indien i / 2 weer even is, zullen we de ouder van de ouder rood kleuren en diens kinderen terug zwart kleuren indien (i / 2) / 2 weer even is etc.
+        Voilà
+
     (c) tijdscomplexiteit
-        ...
+        O(n * log n), eerst vragen we de sleutels op, wat een complexiteit van O(n * log n) tijd heeft, aangezien we de sleutels sorteren (als ik deze zou sorteren in de add en remove zelf, zal het O(n) zijn, maar dit zal de totale tijd verhogen)
+        dan doen we een aantal constante bewerkingen in o(1)
+        dan overlopen we de sleutels om degene voor de compleet binaire boom te splitsen met de rest in O(n)
+        dan bouwen we de compleet binaire boom door eerst nog een speciale sort toe te passen in O(n) (bewezen met masterstelling voor recursieve complexiteit)
+        en dan de toppen toe te voegen in O(n)
+        daarna gaan we over de andere toppen en voegen we toe, dit zal een zeer kleine O(n * log n) zijn, aangezien in het geval dat i deelbaar is door 4, we getSearchPath(...) toepassen
+
+        dus O(n * log n)
+
     (d) tijdscomplexiteit voor b bewerkingen
         ...
 
 2. k-kleuren boom T met n sleutels en m toppen, maximaal de helft zijn grafstenen (dus m >= 2 * n)
     (a) beschrijf toevoegbewerking en geef de tijdscomplexiteit
-        ...
+        als de boom leeg is voegen we gwn de sleutel toe als wortel met kleur 0
+        we zoeken naar de plaats waar we de sleutel moeten toevoegen, als we met een grafsteen zitten, dan on-grafstenen we die
+        als de ouder een kleur k' < k - 1 heeft, voegen we gewoon de sleutel als top met kleur k' + 1,
+        maar als dit niet het geval is, voegen we de top met kleur 1 toe en fixen we het probleem
+        we nemen de ouder en grootouder en roteren we zoals bij rood-zwart, maar met volgende kleuring:
+        de wortel van de deelboom wordt kleur 1 en de kinderen worden de kleur die de grootouder oorspronkelijk had
+        indien de grootouder niet kleur 1 had en de nieuwe wortel opnieuw een probleem veroorzaakt, doen we dit opnieuw
+        indien de grootouder kleur 1 had, weten we dat er een probleem is en doen we dit opnieuw met het rechterkind, de nieuwe wortel en de ouder daarvan
+        aangezien we weten dat de ouder van de nieuwe wortel zeker niet rood is (anders hadden we bij een vorige bewerking een fout),
+        zullen de kinderen van de nieuwe deelboom na rotering niet rood gekleurd zijn en zullen we met het rode linkerkind niet in de problemen komen
+
+        tijdcomplexiteit:
+        O(n) voor het slechtste geval, indien we de sleutel moeten toevoegen op de grootst mogelijke diepte en bij het herbalanceren helemaal naar de wortel moeten gaan
+        want de grootst mogelijke diepte in een regenboogboom met n toppen is n, indien n ≤ k
+        dus wanneer we zoeken naar de plaats waar we de sleutel moeten toevoegen, zitten we aan O(n)
+        dan komt er een probleem voor, dus doen we een aantal constante bewerkingen om te roteren
+        dan komt er weer een probleem voor, maar we zitten in het slechtste geval 1 dichter bij de wortel
+        en dan komt er weer een probleem voor enz. waardoor we die constante bewerkingen O(n) keer doen
+
+        dus O(n)
+
     (b) beschrijf verwijderbewerking en geef de tijdscomplexiteit
-        ...
+        zoek naar de top met corresponderende sleutel
+        indien het een wortel is in een boom met enkel een wortel, veilig verwijderen
+        indien het een niet-zwart blad is, veilig verwijderen
+        indien het een top is met 1 kind, verwijderen en dan het ene kind de kleur van de top geven en aan de ouder hangen ipv de verwijderde top
+        indien het een zwart blad is, grafsteen (indien er meer grafstenen dan sleutels zijn, rebuild)
+        indien het geen van de vorige gevallen is, zitten we met een interne top met zeker 2 kinderen
+        dus we swappen met de grootste sleutel in de linkerdeelboom, behalve als deze een zwart blad is, dan wordt onze top gewoon een grafsteen (indien er meer grafstenen dan sleutels zijn, rebuild)
+        na de swapping kunnen we gewoon een van de vorige gevallen toepassen
+
+        tijdscomplexiteit:
+        O(n) voor het slechtste geval (exclusief het geval waar een rebuild voorkomt, want dit komt zodanig weinig voor, dat het gemiddeld O(n) zal zijn), indien de sleutel op de grootst mogelijke diepte, dit is n
+        we zoeken naar de top, O(n)
+        indien het de wortel is in een boom met enkel een wortel, een niet-zwart blad of een top met 1 kind, is de verwijdering zelf O(1)
+        indien het een grafsteen is, ook O(1), aangezien we rebuild niet meerekenen
+        indien het een interne top is, zal de zoektocht naar de grootste links O(n) zijn,
+        dan doen we grafsteen en dit zal O(1), aangezien we rebuild niet meerekenen oftewel swap en een ander geval en dit zal O(1) zijn
+
+        dus O(n)
+
     (c) beschrijf rebuild
         ...
+
     (d) tijdscomplexiteit
         ...
+
     (e) tijdscomplexiteit voor b bewerkingen
         ...
 

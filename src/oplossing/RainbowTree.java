@@ -129,7 +129,15 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
         int n = size();
         List<E> keys = values();
 
-        if (n > 0) {
+        // exception case
+        if (n == 4 && k > 2) {
+            root = new ColouredNode<>(keys.get(2), 0);
+            root.setLeft(new ColouredNode<>(keys.get(1), 1));
+            root.setRight(new ColouredNode<>(keys.getLast(), 1));
+            root.getLeft().setLeft(new ColouredNode<>(keys.getFirst(), 2));
+        }
+        // normal case
+        else if (n > 0) {
             // clear tree
             root = null;
             values.clear();
