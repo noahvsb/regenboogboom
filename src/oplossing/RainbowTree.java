@@ -164,12 +164,13 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
             // all red nodes in the complete binary tree, except the ones on the bottom level, if there are any
             // there will be nodes on the bottom level only if bottomKeysAmount == 0
             List<List<ColouredNode<E>>> cbtRedNodes = new ArrayList<>();
+            for (int i = 0; i < (cbtDepth + (bottomKeysAmount == 0 ? 1 : 0)) / 2; i++) cbtRedNodes.add(new ArrayList<>());
 
             // all nodes on the bottom level in the cbt
             List<ColouredNode<E>> cbtBottomLevel = new ArrayList<>();
 
             // build complete binary tree using the other keys
-            buildCompleteBinaryTree(cbtKeys, cbtDepth, bottomKeysAmount, cbtBottomLevel, cbtRedNodes);
+            root = buildCompleteBinaryTree(cbtKeys, cbtDepth, 0, bottomKeysAmount, cbtBottomLevel, cbtRedNodes);
 
             // add red leafs
             int i = 0;
@@ -184,7 +185,7 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
             }
 
             // maximize the amount of red nodes
-            for (List<ColouredNode<E>> sub : cbtRedNodes)
+            for (List<ColouredNode<E>> sub : cbtRedNodes) {
                 for (ColouredNode<E> node : sub) {
                     // because of the way I built my cbt, I only need to check the left child
                     ColouredNode<E> left = node.getLeft();
@@ -196,63 +197,34 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
                         node.getRight().setColour(1);
                     }
                 }
+            }
         }
     }
 
-    // build a complete binary tree with all nodes on each level the same colour, alternating between red and black
-    // however if there are no red
-    private void buildCompleteBinaryTree(List<E> keys, int depth, int a, List<ColouredNode<E>> bottomLevel, List<List<ColouredNode<E>>> redNodes) {
-        for (int i = 0; i < (depth + (a == 0 ? 1 : 0)) / 2; i++) redNodes.add(new ArrayList<>());
+    // build a complete binary tree with all nodes on each level the same colour, alternating between black and red and ending with black
+    // this ending can be guaranteed by possible duplication of black rows at the start (first two rows black)
+    // however if there bottom keys amount (here a) is 0, make sure to end with a red row instead
+    private ColouredNode<E> buildCompleteBinaryTree(List<E> keys, int depth, int currentDepth, int a, List<ColouredNode<E>> bottomLevel, List<List<ColouredNode<E>>> redNodes) {
+        int middle = keys.size() / 2;
+        E key = keys.get(middle);
 
-        // perform a special sort (see specialSort() for more details)
-        keys = specialSort(keys);
+        int colour = (a == 0 && depth % 2 == currentDepth % 2) || (a != 0 && depth % 2 != currentDepth % 2) ? 1 : 0;
+        if (currentDepth == 0) // to make sure the root is black
+            colour = 0;
+        ColouredNode<E> node = new ColouredNode<>(key, colour);
+        values.add(key);
 
-        // set the root
-        E first = keys.removeFirst();
-        root = new ColouredNode<>(first, 0);
-        values.add(first);
-
-        // add the rest like you would in a normal binary search tree
-        Stack<ColouredNode<E>> parents = new Stack<>();
-        ColouredNode<E> lastNode = root;
-        int parentDepth = 0;
-
-        if (depth == parentDepth)
-            bottomLevel.add(lastNode);
-
-        for (E key : keys) {
-            ColouredNode<E> parent;
-            boolean left;
-            if (parentDepth != depth && lastNode.getLeft() == null) {
-                parent = lastNode;
-                left = true;
-            } else {
-                parentDepth--;
-                parent = parents.pop();
-                while (parent.getRight() != null) {
-                    parentDepth--;
-                    parent = parents.pop();
-                }
-                left = false;
-            }
-
-            int colour = (a == 0 && depth % 2 != parentDepth % 2) || (a != 0 && depth % 2 == parentDepth % 2) ? 1 : 0;
-            ColouredNode<E> node = new ColouredNode<>(key, colour);
-            if (left)
-                parent.setLeft(node);
-            else
-                parent.setRight(node);
-
-            parents.push(parent);
-
-            if (colour == 1)
-                redNodes.get((depth - (parentDepth + 1)) / 2).add(node);
-            else if (depth == parentDepth + 1)
-                bottomLevel.add(node);
-
-            values.add(key);
-            lastNode = node;
-            parentDepth++;
+        if (currentDepth == depth) { // we can also do this by checking if keys.size() == 1
+            bottomLevel.add(node);
+            return node;
         }
+
+        if (colour == 1)
+            redNodes.get((depth - currentDepth) / 2).add(node);
+
+        node.setLeft(buildCompleteBinaryTree(keys.subList(0, middle), depth, currentDepth + 1, a, bottomLevel, redNodes));
+        node.setRight(buildCompleteBinaryTree(keys.subList(middle + 1, keys.size()), depth, currentDepth + 1, a, bottomLevel, redNodes));
+
+        return node;
     }
 }

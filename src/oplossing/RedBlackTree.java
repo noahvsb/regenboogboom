@@ -120,8 +120,7 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
                 parent.setLeft(null);
                 parent.setColour(0);
                 colourRed(parent.getRight());
-            }
-            else {
+            } else {
                 parent.setRight(null);
                 parent.setColour(0);
                 colourRed(parent.getLeft());
@@ -196,9 +195,10 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
 
             // keys per level in the cbt
             List<List<ColouredNode<E>>> cbtNodesPerLevel = new ArrayList<>();
+            for (int i = 0; i <= cbtDepth; i++) cbtNodesPerLevel.add(new ArrayList<>());
 
             // build complete binary tree using the other keys
-            buildCompleteBinaryTree(cbtKeys, cbtDepth, cbtNodesPerLevel);
+            root = buildCompleteBinaryTree(cbtKeys, cbtDepth, 0, cbtNodesPerLevel);
 
             // add red leafs with some slight changes to minimize the amount of red nodes
             int i = 1;
@@ -225,49 +225,19 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
         }
     }
 
-    private void buildCompleteBinaryTree(List<E> keys, int depth, List<List<ColouredNode<E>>> nodesPerLevel) {
-        for (int i = 0; i <= depth; i++) nodesPerLevel.add(new ArrayList<>());
+    private ColouredNode<E> buildCompleteBinaryTree(List<E> keys, int depth, int currentDepth, List<List<ColouredNode<E>>> nodesPerLevel) {
+        int middle = keys.size() / 2;
+        E key = keys.get(middle);
+        ColouredNode<E> node = new ColouredNode<>(key, 0);
+        values.add(key);
+        nodesPerLevel.get(depth - currentDepth).add(node);
 
-        // perform a special sort (see specialSort() for more details)
-        keys = specialSort(keys);
+        if (currentDepth == depth) // we can also do this by checking if keys.size() == 1
+            return node;
 
-        // set the root
-        E first = keys.removeFirst();
-        root = new ColouredNode<>(first, 0);
-        values.add(first);
+        node.setLeft(buildCompleteBinaryTree(keys.subList(0, middle), depth, currentDepth + 1, nodesPerLevel));
+        node.setRight(buildCompleteBinaryTree(keys.subList(middle + 1, keys.size()), depth, currentDepth + 1, nodesPerLevel));
 
-        // add the rest like you would in a normal binary search tree
-        Stack<ColouredNode<E>> parents = new Stack<>();
-        ColouredNode<E> lastNode = root;
-        int parentDepth = 0;
-
-        nodesPerLevel.getLast().add(root);
-
-        for (E key : keys) {
-            ColouredNode<E> node = new ColouredNode<>(key, 0);
-
-            if (parentDepth != depth && lastNode.getLeft() == null) {
-                lastNode.setLeft(node);
-
-                parents.push(lastNode);
-            } else {
-                parentDepth--;
-                ColouredNode<E> parent = parents.pop();
-                while (parent.getRight() != null) {
-                    parentDepth--;
-                    parent = parents.pop();
-                }
-
-                parent.setRight(node);
-
-                parents.push(parent);
-            }
-
-            nodesPerLevel.get(depth - (parentDepth + 1)).add(node);
-
-            values.add(key);
-            lastNode = node;
-            parentDepth++;
-        }
+        return node;
     }
 }
