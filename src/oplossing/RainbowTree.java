@@ -163,15 +163,18 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
 
             // all red nodes in the complete binary tree, except the ones on the bottom level, if there are any
             // there will be nodes on the bottom level only if bottomKeysAmount == 0
-            List<ColouredNode<E>> cbtRedNodes = new ArrayList<>();
+            List<List<ColouredNode<E>>> cbtRedNodes = new ArrayList<>();
+
+            // all nodes on the bottom level in the cbt
+            List<ColouredNode<E>> cbtBottomLevel = new ArrayList<>();
 
             // build complete binary tree using the other keys
-            List<ColouredNode<E>> bottomLevel = buildCompleteBinaryTree(cbtKeys, cbtDepth, bottomKeysAmount, cbtRedNodes);
+            buildCompleteBinaryTree(cbtKeys, cbtDepth, bottomKeysAmount, cbtBottomLevel, cbtRedNodes);
 
             // add red leafs
             int i = 0;
             for (E key : bottomKeys) {
-                ColouredNode<E> parent = bottomLevel.get(i / 2);
+                ColouredNode<E> parent = cbtBottomLevel.get(i / 2);
                 if (i % 2 == 0)
                     parent.setLeft(new ColouredNode<>(key, 1));
                 else
@@ -181,8 +184,8 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
             }
 
             // maximize the amount of red nodes
-            for (i = 0; i < cbtDepth / 2; i++)
-                for (ColouredNode<E> node : cbtRedNodes) {
+            for (List<ColouredNode<E>> sub : cbtRedNodes)
+                for (ColouredNode<E> node : sub) {
                     // because of the way I built my cbt, I only need to check the left child
                     ColouredNode<E> left = node.getLeft();
                     if (left != null && left.getColour() == 0
@@ -198,8 +201,8 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
 
     // build a complete binary tree with all nodes on each level the same colour, alternating between red and black
     // however if there are no red
-    private List<ColouredNode<E>> buildCompleteBinaryTree(List<E> keys, int depth, int a, List<ColouredNode<E>> redNodes) {
-        List<ColouredNode<E>> bottomLevel = new ArrayList<>();
+    private void buildCompleteBinaryTree(List<E> keys, int depth, int a, List<ColouredNode<E>> bottomLevel, List<List<ColouredNode<E>>> redNodes) {
+        for (int i = 0; i < (depth + (a == 0 ? 1 : 0)) / 2; i++) redNodes.add(new ArrayList<>());
 
         // perform a special sort (see specialSort() for more details)
         keys = specialSort(keys);
@@ -242,8 +245,8 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
 
             parents.push(parent);
 
-            if (colour == 1 && depth != parentDepth + 1)
-                redNodes.add(node);
+            if (colour == 1)
+                redNodes.get((depth - (parentDepth + 1)) / 2).add(node);
             else if (depth == parentDepth + 1)
                 bottomLevel.add(node);
 
@@ -251,7 +254,5 @@ public class RainbowTree<E extends Comparable<E>> extends ColouredTree<E> {
             lastNode = node;
             parentDepth++;
         }
-
-        return bottomLevel;
     }
 }
