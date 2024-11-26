@@ -195,32 +195,25 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
             }
 
             // build complete binary tree using the other keys
-            List<ColouredNode<E>> cbtBottomLevel = buildCompleteBinaryTree(cbtKeys, cbtDepth);
+            List<List<ColouredNode<E>>> parentsPerLevel = buildCompleteBinaryTree(cbtKeys, cbtDepth);
 
             // add red leafs with some slight changes to minimize the amount of red nodes
             int i = 1;
             for (E key : bottomKeys) {
-                ColouredNode<E> parent = cbtBottomLevel.get((i - 1) / 2);
+                ColouredNode<E> parent = parentsPerLevel.getFirst().get((i - 1) / 2);
                 if (i % 2 == 1) {
                     parent.setLeft(new ColouredNode<>(key, 1));
                 } else {
                     parent.setRight(new ColouredNode<>(key, 0));
                     parent.getLeft().setColour(0);
                     parent.setColour(1);
-                    if ((i / 2) % 2 == 0) {
-                        // I chose clean code over efficiëncy
-                        // the less efficiëncy is hardly noticeable tho
-                        List<ColouredNode<E>> path = getSearchPath(parent.getValue());
-                        path.removeLast();
-
-                        int j = 1;
-                        while ((i / Math.pow(2, j)) % 2 == 0) {
-                            parent.setColour(0);
-                            parent = path.removeLast();
-                            parent.getLeft().setColour(0);
-                            parent.setColour(1);
-                            j++;
-                        }
+                    int j = 1;
+                    while ((i / Math.pow(2, j)) % 2 == 0) {
+                        parent.setColour(0);
+                        parent = parentsPerLevel.get(j).get((i - 1) / (int) Math.pow(2, j + 1));
+                        parent.getLeft().setColour(0);
+                        parent.setColour(1);
+                        j++;
                     }
                 }
                 values.add(key);
@@ -229,8 +222,11 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
         }
     }
 
-    private List<ColouredNode<E>> buildCompleteBinaryTree(List<E> keys, int depth) {
-        List<ColouredNode<E>> bottomLevel = new ArrayList<>();
+    private List<List<ColouredNode<E>>> buildCompleteBinaryTree(List<E> keys, int depth) {
+        List<List<ColouredNode<E>>> parentsPerLevel = new ArrayList<>();
+        for (int i = 0; i <= depth; i++) {
+            parentsPerLevel.add(new ArrayList<>());
+        }
 
         // perform a special sort (see specialSort() for more details)
         keys = specialSort(keys);
@@ -245,8 +241,7 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
         ColouredNode<E> lastNode = root;
         int parentDepth = 0;
 
-        if (depth == parentDepth)
-            bottomLevel.add(root);
+        parentsPerLevel.getLast().add(root);
 
         for (E key : keys) {
             ColouredNode<E> node = new ColouredNode<>(key, 0);
@@ -268,14 +263,13 @@ public class RedBlackTree<E extends Comparable<E>> extends ColouredTree<E> {
                 parents.push(parent);
             }
 
-            if (depth == parentDepth + 1)
-                bottomLevel.add(node);
+            parentsPerLevel.get(depth - (parentDepth + 1)).add(node);
 
             values.add(key);
             lastNode = node;
             parentDepth++;
         }
 
-        return bottomLevel;
+        return parentsPerLevel;
     }
 }

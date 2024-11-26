@@ -21,14 +21,17 @@
         Voilà
 
     (c) tijdscomplexiteit
-        O(n * log n), eerst vragen we de sleutels op, wat een complexiteit van O(n * log n) tijd heeft, aangezien we de sleutels sorteren (als ik deze zou sorteren in de add en remove zelf, zal het O(n) zijn, maar dit zal de totale tijd verhogen)
+        O(n), eerst vragen we de sleutels op, wat een complexiteit van O(n) tijd heeft,
+        onze sortering gaat over alle toppen maximum 3 keer (op weg naar linkerkind, terug van linkerkind en naar rechterkind, terug van rechterkind)
+        en doet een aantal constante bewerking per topoverloping
         dan doen we een aantal constante bewerkingen in o(1)
         dan overlopen we de sleutels om degene voor de compleet binaire boom te splitsen met de rest in O(n)
         dan bouwen we de compleet binaire boom door eerst nog een speciale sort toe te passen in O(n) (bewezen met masterstelling voor recursieve complexiteit)
         en dan de toppen toe te voegen in O(n)
-        daarna gaan we over de andere toppen en voegen we toe, dit zal een zeer kleine O(n * log n) zijn, aangezien in het geval dat i deelbaar is door 4, we getSearchPath(...) toepassen
+        daarna gaan we over de andere toppen en voegen we toe met een aantal constante bewerkingen, dus O(n),
+        indien i deelbaar is door 2 of een andere grotere macht van 2, zijn er wel wat meer constante bewerkingen, maar het blijft constant
 
-        dus O(n * log n)
+        dus O(n)
 
     (d) tijdscomplexiteit voor b bewerkingen
         ...

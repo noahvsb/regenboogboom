@@ -148,7 +148,7 @@ public class TestHelpFunctions {
             if (z == -1)
                 z = currentZ;
             else if (z != currentZ) {
-                System.out.println("z: " + z + " -- current z: " + currentZ);
+                System.out.println("z = " + z + ", but current z = " + currentZ);
                 System.err.println("Not every path from the root to a null-pointer has the same amount of black nodes");
                 return false;
             }
