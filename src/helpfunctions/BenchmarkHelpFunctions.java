@@ -1,6 +1,8 @@
 package helpfunctions;
 
 import opgave.SearchTree;
+import oplossing.RainbowTree;
+import oplossing.RedBlackTree;
 
 import java.util.*;
 
@@ -64,5 +66,92 @@ public class BenchmarkHelpFunctions {
 
     public static long getAverageTime(long[] times) {
         return Math.round(Arrays.stream(times).average().orElse(-1));
+    }
+
+    public static void redBlackTree(int t, int n) {
+        // add n nodes
+        long[] times = new long[t];
+        for (int i = 0; i < t; i++) {
+            BenchmarkHelpFunctions.searchTreeAdd(new RedBlackTree<>(), times, i, BenchmarkHelpFunctions.generateKeys(n));
+        }
+        long addAverage = BenchmarkHelpFunctions.getAverageTime(times);
+        System.out.printf("add %d nodes:\n%dms\n", n, addAverage);
+
+        // remove n nodes
+        times = new long[t];
+        for (int i = 0; i < t; i++) {
+            RedBlackTree<Integer> tree = new RedBlackTree<>();
+            BenchmarkHelpFunctions.searchTreeAdd(tree, new long[t], i, BenchmarkHelpFunctions.generateKeys(n));
+
+            BenchmarkHelpFunctions.searchTreeRemove(tree, times, i, BenchmarkHelpFunctions.generateKeys(n));
+        }
+        long removeAverage = BenchmarkHelpFunctions.getAverageTime(times);
+        System.out.printf("remove %d nodes:\n%dms\n", n, removeAverage);
+
+        // mix n nodes
+        times = new long[t];
+        for (int i = 0; i < t; i++) {
+            BenchmarkHelpFunctions.searchTreeMix(new RedBlackTree<>(), n, n / 2, times, i);
+        }
+        long mixAverage = BenchmarkHelpFunctions.getAverageTime(times);
+        System.out.printf("mix %d nodes:\n%dms\n", n, mixAverage);
+
+        // rebuild a tree with n nodes
+        times = new long[t];
+        for (int i = 0; i < t; i++) {
+            RedBlackTree<Integer> tree = new RedBlackTree<>();
+            BenchmarkHelpFunctions.searchTreeAdd(tree, times, i, BenchmarkHelpFunctions.generateKeys(n));
+
+            long start = System.currentTimeMillis();
+            tree.rebuild();
+            long stop = System.currentTimeMillis();
+
+            times[i] = stop - start;
+        }
+        long rebuildAverage = BenchmarkHelpFunctions.getAverageTime(times);
+        System.out.printf("rebuild %d nodes:\n%dms\n\n", n, rebuildAverage);
+    }
+
+    public static void rainbowTree(int k, int t, int n) {
+        // add n nodes
+        long[] times = new long[t];
+        for (int i = 0; i < t; i++)
+            BenchmarkHelpFunctions.searchTreeAdd(new RainbowTree<>(k), times, i, BenchmarkHelpFunctions.generateKeys(n));
+        long addAverage = BenchmarkHelpFunctions.getAverageTime(times);
+        System.out.printf("add %d nodes:\n%dms\n", n, addAverage);
+
+        // remove n nodes
+        times = new long[t];
+        for (int i = 0; i < t; i++) {
+            RainbowTree<Integer> tree = new RainbowTree<>(k);
+            BenchmarkHelpFunctions.searchTreeAdd(tree, new long[t], i, BenchmarkHelpFunctions.generateKeys(n));
+
+            BenchmarkHelpFunctions.searchTreeRemove(tree, times, i, BenchmarkHelpFunctions.generateKeys(n));
+        }
+        long removeAverage = BenchmarkHelpFunctions.getAverageTime(times);
+        System.out.printf("remove %d nodes:\n%dms\n", n, removeAverage);
+
+        // mix n nodes
+        times = new long[t];
+        for (int i = 0; i < t; i++) {
+            BenchmarkHelpFunctions.searchTreeMix(new RainbowTree<>(k), n, n / 2, times, i);
+        }
+        long mixAverage = BenchmarkHelpFunctions.getAverageTime(times);
+        System.out.printf("mix %d nodes:\n%dms\n", n, mixAverage);
+
+        // rebuild a tree with n nodes
+        times = new long[t];
+        for (int i = 0; i < t; i++) {
+            RainbowTree<Integer> tree = new RainbowTree<>(k);
+            BenchmarkHelpFunctions.searchTreeAdd(tree, times, i, BenchmarkHelpFunctions.generateKeys(n));
+
+            long start = System.currentTimeMillis();
+            tree.rebuild();
+            long stop = System.currentTimeMillis();
+
+            times[i] = stop - start;
+        }
+        long rebuildAverage = BenchmarkHelpFunctions.getAverageTime(times);
+        System.out.printf("rebuild %d nodes:\n%dms\n\n", n, rebuildAverage);
     }
 }

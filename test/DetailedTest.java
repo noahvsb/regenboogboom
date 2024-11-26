@@ -99,13 +99,13 @@ public class DetailedTest {
 
             tree.rebuild();
 
-            Assertions.assertTrue(TestHelpFunctions.checkConditions(tree));
-            Assertions.assertEquals(n, tree.size());
-            Assertions.assertEquals(TestHelpFunctions.getSmallestAmountOfRedNodes(n), TestHelpFunctions.getAmountOfNodesOfColour(tree , 1));
-
             System.out.println("n = " + n);
             System.out.printf("red nodes: %d\n", TestHelpFunctions.getAmountOfNodesOfColour(tree, 1));
             IntegerTreeVisualizer.print(tree);
+
+            Assertions.assertTrue(TestHelpFunctions.checkConditions(tree));
+            Assertions.assertEquals(n, tree.size());
+            Assertions.assertEquals(TestHelpFunctions.getSmallestAmountOfRedNodes(n), TestHelpFunctions.getAmountOfNodesOfColour(tree , 1));
         }
     }
 
@@ -197,12 +197,12 @@ public class DetailedTest {
 
             tree.rebuild();
 
-            Assertions.assertTrue(TestHelpFunctions.checkConditions(tree));
-            Assertions.assertEquals(n, tree.size());
-
             System.out.println("n = " + n);
             System.out.printf("nodes with c = %d: %d\n", 1, TestHelpFunctions.getAmountOfNodesOfColour(tree, 1));
             IntegerTreeVisualizer.print(tree);
+
+            Assertions.assertTrue(TestHelpFunctions.checkConditions(tree));
+            Assertions.assertEquals(n, tree.size());
         }
     }
 }

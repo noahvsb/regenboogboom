@@ -3,10 +3,7 @@ package oplossing;
 import opgave.Node;
 import opgave.SearchTree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public abstract class ColouredTree<E extends Comparable<E>> implements SearchTree<E> {
 
@@ -209,6 +206,56 @@ public abstract class ColouredTree<E extends Comparable<E>> implements SearchTre
 
     @Override
     public List<E> values() {
-        return values.stream().sorted().toList();
+        List<E> sortedKeys = new ArrayList<>();
+        Set<E> addedValues = new HashSet<>();
+
+        Stack<ColouredNode<E>> parents = new Stack<>();
+        ColouredNode<E> lastNode = root;
+
+        boolean done = lastNode == null;
+        while (!done) {
+            // go deeper left
+            ColouredNode<E> left = lastNode.getLeft();
+            if (left != null && !addedValues.contains(left.getValue())) {
+                parents.push(lastNode);
+                lastNode = left;
+            }
+
+            // can't go deeper left or left key has already been added
+            else {
+                // go deeper right
+                ColouredNode<E> right = lastNode.getRight();
+                if (right != null && !addedValues.contains(right.getValue())) {
+                    // add key from parent
+                    E v = lastNode.getValue();
+                    if (!addedValues.contains(v)) {
+                        if (!lastNode.isRemoved())
+                            sortedKeys.add(v);
+                        addedValues.add(v);
+                    }
+
+                    parents.push(lastNode);
+                    lastNode = right;
+                }
+
+                // can't go deeper right or right key has already been added
+                else {
+                    // add key from last node
+                    E v = lastNode.getValue();
+                    if (!addedValues.contains(v)) {
+                        if (!lastNode.isRemoved())
+                            sortedKeys.add(v);
+                        addedValues.add(v);
+                    }
+
+                    if (parents.isEmpty())
+                        done = true;
+                    else
+                        lastNode = parents.pop();
+                }
+            }
+        }
+
+        return sortedKeys;
     }
 }
