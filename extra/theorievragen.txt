@@ -74,8 +74,9 @@
         we zoeken naar de top, O(n)
         indien het de wortel is in een boom met enkel een wortel, een niet-zwart blad of een top met 1 kind, is de verwijdering zelf O(1)
         indien het een grafsteen is, ook O(1), aangezien we rebuild niet meerekenen
-        indien het een interne top is, zal de zoektocht naar de grootste links O(n) zijn,
-        dan doen we grafsteen en dit zal O(1), aangezien we rebuild niet meerekenen oftewel swap en een ander geval en dit zal O(1) zijn
+        indien het een interne top is, zal de zoektocht naar de grootste links O(n) zijn, dan doen we
+        oftewel grafsteen en dit zal O(1) zijn aangezien we rebuild niet meerekenen
+        oftewel swap en een ander geval en dit zal O(1) zijn
 
         dus O(n)
 
