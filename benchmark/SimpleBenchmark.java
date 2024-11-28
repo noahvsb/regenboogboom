@@ -1,9 +1,9 @@
 import helpfunctions.BenchmarkHelpFunctions;
 
-public class BenchmarkPrint {
+public class SimpleBenchmark {
     public static void main(String[] args) {
         // RED/BLACK TREE
-        System.out.print("RED/BLACK TREE\n\n");
+        System.out.print("RED BLACK TREE\n\n");
 
         BenchmarkHelpFunctions.redBlackTree(100, 10);
         BenchmarkHelpFunctions.redBlackTree(100, 100);

@@ -1,14 +1,17 @@
 1. rood-zwart boom T met n sleutels en m toppen, maximaal de helft zijn grafstenen (dus m >= 2 * n)
     (a) kleinst aantal rode toppen in T
-        dit kan je makkelijk bepalen met een aantal berekeningen:
-        bereken log2(n) naar beneden afgerond, we noemen dit l voor de volgende berekeningen, als n = 2^(l+1) - 1, is het kleinste aantal rode toppen gelijk aan 0, bv bij n = 15 (15 = 2^4 - 1)
-        anders bereken je n - (2^l - 1), bv bij n = 20, heb je l = 4 en krijg je 20 - (2^4 - 1) = 20 - 15 = 5 en slaat dit op in r
-        dan overloop je alle machten van 2 van l - 1 tot en met 0, noem deze m_i
-        dan indien r >= m_i, maak je r = r - m_i en is zal je 1 rode top meer hebben in de boom
-        dus bv voor onze n = 20, heb je l = 4 en r = 5, dus start je vanaf 2^3, 5 < 2^3,
-        dus we gaan door naar 2^2, 5 >= 2^2, dus r wordt 1 en we hebben 1 rode top meer,
-        dan gaan we door naar 2^1, 1 < 2^1, dus we gaan door naar 2^0, 1 >= 2^0, dus r wordt 0 en we hebben 1 rode top meer,
-        we zijn aan 0 gekomen, dus we stoppen en we zien dus dat voor een rood-zwart boom met 20 toppen het kleinst aantal rode toppen 2 is
+        dit kan je makkelijk bepalen met recursie:
+        voor n < 2, krijg je 0
+        voor n >= 2 pas je recursie toe:
+        maar eerst moet je weten wat n is voor recursie linkerkind en recursie rechterkind
+        we moeten zorgen dat de boom bijna-compleet is, wat wil zeggen dat voor een boom met diepte d, hij minstens compleet is op diepte d-1
+        we berekenen n_l en n_r als volgt: n_l = 2^log(n+1) - 1 en n_r = 2^(log(n+1) - 1) - 1
+        hierdoor zal uw linkerrecursie resulteren in een complete boom met diepte d-1 en uw rechterrecursie in een complete boom met diepte d-2
+        dus we hebben nu oftewel een paar toppen teveel links, oftewel een paar toppen te weinig rechts
+        dit bereken we makkelijk met n - 1 - n_l - n_r, als dit negatief is, hebben we er links teveel, als dit 0 is, zitten we goed en als dit positief is, hebben we er rechts te weinig
+        in het eerste geval trekken we het aantal teveel van links af, in het derde geval tellen we dit aantal rechts op
+        maar in het tweede en derde geval zit er in de linker-recursie zwarte top per pad meer en om dit op te lossen en zo weinig mogelijk rode toppen te gebruiken, zetten we gewoon de wortel van de linkerrecursie op 1
+        dus f(0) = 0; f(1) = 0; f(n) = f(n_l) + f(n_r) (+ mogelijks 1) resulteert in onze functie die het kleinst aantal rode toppen bepaalt in een boom met n toppen
 
     (b) geef een algoritme
         we doen eerst de berekeningen voor l en r
@@ -34,7 +37,26 @@
         dus O(n)
 
     (d) tijdscomplexiteit voor b bewerkingen
-        ...
+        bovengrens toevoegbewerking:
+        het maximaal aantal toppen in een boom is b, dus een bovengrens is O(b * log b)
+
+        bovengrens opzoekbewerking:
+        het maximaal aantal toppen in een boom is b, dus een bovengrens is O(b * log b)
+
+        bovengrens verwijderbewerking:
+        bij een verwijderbewerking is er meer werk, want een bovengrens voor een enkele operatie is O(n) (indien rebuild zich voordoet)
+        maar we kunnen bewijzen dat een bovengrens voor b bewerkingen toch O(b * log b) is
+
+        een verwijderbewerking is normaal O(log n) voor een boom met n toppen, maar indien er moet worden rebuild is het O(n)
+        gelukkig kan rebuild enkel gebeuren wanneer de helft een grafsteen is, en bij elke verwijderoperatie zal er max 1 grafsteen bijkomen,
+        dus komt 1 rebuild in het slechtste geval voor in een boom met n toppen indien we een startsituatie hadden met 2n toppen
+        en er n verwijderoperaties zijn gebeurd waarbij telkens 1 grafsteen is bijgekomen
+        dus n * O(log 2n) + n, wat gewoon gelijk is aan O(n * log n)
+
+        het maximaal aantal toppen in een boom is b, dus voor b bewerkingen is een bovengrens O(b * log b)
+
+        hierdoor is de bovengrens voor alle bewerkingen 3 * O(b * log b) en dus O(b * log b)
+
 
 2. k-kleuren boom T met n sleutels en m toppen, maximaal de helft zijn grafstenen (dus m >= 2 * n)
     (a) beschrijf toevoegbewerking en geef de tijdscomplexiteit
@@ -75,12 +97,12 @@
         na de swapping kunnen we gewoon een van de vorige gevallen toepassen
 
         tijdscomplexiteit:
-        O(k * log n), exclusief het geval waar een rebuild voorkomt, want dit komt zodanig weinig voor, dat het gemiddeld O(k * log n) zal zijn
+        O(k * log n), we negeren de rebuild, hier komen we later op terug bij vraag e
         we zoeken naar de top, maximaal O(k * log n)
         indien het de wortel is in een boom met enkel een wortel, een niet-zwart blad of een top met 1 kind, is de verwijdering zelf O(1)
-        indien het een grafsteen is, ook O(1), aangezien we rebuild niet meerekenen
+        indien het een grafsteen is, ook O(1) (dankzij het negeren van rebuild)
         indien het een interne top is, zal de zoektocht naar de grootste links maximaal O(k * log n) zijn, dan doen we
-        oftewel grafsteen en dit zal O(1) zijn aangezien we rebuild niet meerekenen
+        oftewel grafsteen en dit zal O(1) zijn (dankzij het negeren van rebuild)
         oftewel swap en een ander geval en dit zal O(1) zijn
 
         dus O(k * log n)
@@ -110,5 +132,23 @@
         kga dit nie uitschrijven want tis bijna exact hetzelfde als bij red-black
 
     (e) tijdscomplexiteit voor b bewerkingen
-        ...
+        bovengrens toevoegbewerking:
+        het maximaal aantal toppen in een boom is b, dus een bovengrens is O(b * k * log b)
+
+        bovengrens opzoekbewerking:
+        het maximaal aantal toppen in een boom is b, dus een bovengrens is O(b * k * log b)
+
+        bovengrens verwijderbewerking:
+        bij een verwijderbewerking is er meer werk, want een bovengrens voor een enkele operatie is O(n) (indien rebuild zich voordoet)
+        maar we kunnen bewijzen dat een bovengrens voor b bewerkingen toch O(b * k * log b) is
+
+        een verwijderbewerking is normaal O(log n) voor een boom met n toppen, maar indien er moet worden rebuild is het O(n)
+        gelukkig kan rebuild enkel gebeuren wanneer de helft een grafsteen is, en bij elke verwijderoperatie zal er max 1 grafsteen bijkomen,
+        dus komt 1 rebuild in het slechtste geval voor in een boom met n toppen indien we een startsituatie hadden met 2n toppen
+        en er n verwijderoperaties zijn gebeurd waarbij telkens 1 grafsteen is bijgekomen
+        dus n * O(k * log 2n) + n, wat gewoon gelijk is aan O(n * k * log n)
+
+        het maximaal aantal toppen in een boom is b, dus voor b bewerkingen is een bovengrens O(b * k * log b)
+
+        hierdoor is de bovengrens voor alle bewerkingen 3 * O(b * k * log b) en dus O(b * k * log b)
 
