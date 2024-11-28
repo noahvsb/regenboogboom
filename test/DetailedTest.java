@@ -105,7 +105,7 @@ public class DetailedTest {
 
             Assertions.assertTrue(TestHelpFunctions.checkConditions(tree));
             Assertions.assertEquals(n, tree.size());
-            Assertions.assertEquals(TestHelpFunctions.getSmallestAmountOfRedNodes(n), TestHelpFunctions.getAmountOfNodesOfColour(tree , 1));
+            Assertions.assertEquals(TestHelpFunctions.minRed(n), TestHelpFunctions.getAmountOfNodesOfColour(tree , 1));
         }
     }
 

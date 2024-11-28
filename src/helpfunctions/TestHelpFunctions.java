@@ -203,24 +203,28 @@ public class TestHelpFunctions {
     }
 
     // get smallest amount of red nodes in a coloured tree with n keys
-    public static int getSmallestAmountOfRedNodes(int n) {
-        int cbtDepth = log2(n);
-        if (n != (int) Math.pow(2, cbtDepth + 1) - 1)
-            cbtDepth--;
+    public static int minRed(int n) {
+        if (n < 2) return 0;
 
-        int bottomKeysAmount = n - ((int) Math.pow(2, cbtDepth + 1) - 1);
+        int min = 0;
 
-        int redKeysAmount = 0;
+        int l = log2(n + 1);
+        int left = (int) Math.pow(2, l) - 1;
+        int right = (int) Math.pow(2, l - 1) - 1;
 
-        for (int i = cbtDepth; i >= 0; i--) {
-            int pow = (int) Math.pow(2, i);
-            if (bottomKeysAmount >= pow) {
-                redKeysAmount++;
-                bottomKeysAmount -= pow;
-            }
+        int difference = n - 1 - left - right;
+
+        if (difference < 0) {
+            left += difference;
+        }
+        else {
+            right += difference;
+            min++;
         }
 
-        return redKeysAmount;
+        min += minRed(left) + minRed(right);
+
+        return min;
     }
 
     // rounded down

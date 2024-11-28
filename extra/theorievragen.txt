@@ -14,10 +14,11 @@
         we doen eerst de berekeningen voor l en r
         dan sorteren nemen we uit de gesorteerde sleutels de eerste r sleutels op even posities, dus stel r = 2 en sleutels = [1, 2, 3, 4, 5]
         dan krijgen we sleutels 1 en 3, met alle andere sleutels kunnen we nu een compleet binaire boom opbouwen met alleen maar zwarte toppen
-        hierbij slaan we wel de toppen op het laagste niveau op in een lijst, om deze later te kunnen gebruiken voor betere tijdsefficiëntie
+        hierbij slaan we wel de toppen op per niveau op in een lijst, om deze later te kunnen gebruiken voor betere tijdsefficiëntie
         dan gaan we over de sleutels die we daarnet hebben weggehaald en voegen we deze als rood kind toe aan de toppen uit het laagste niveau
         dan indien i even is, bij het toevoegen van de i-de sleutel op deze manier, zullen we de ouder rood kleuren en de twee kinderen daarvan zwart kleuren
         indien i / 2 weer even is, zullen we de ouder van de ouder rood kleuren en diens kinderen terug zwart kleuren indien (i / 2) / 2 weer even is etc.
+        deze ouder van de ouder kunnen we met een simpele berekening uit de lijst halen
         Voilà
 
     (c) tijdscomplexiteit
@@ -26,8 +27,7 @@
         en doet een aantal constante bewerking per topoverloping
         dan doen we een aantal constante bewerkingen in o(1)
         dan overlopen we de sleutels om degene voor de compleet binaire boom te splitsen met de rest in O(n)
-        dan bouwen we de compleet binaire boom door eerst nog een speciale sort toe te passen in O(n) (bewezen met masterstelling voor recursieve complexiteit)
-        en dan de toppen toe te voegen in O(n)
+        dan bouwen we de compleet binaire boom recursief op in O(n)
         daarna gaan we over de andere toppen en voegen we toe met een aantal constante bewerkingen, dus O(n),
         indien i deelbaar is door 2 of een andere grotere macht van 2, zijn er wel wat meer constante bewerkingen, maar het blijft constant
 
@@ -49,15 +49,20 @@
         aangezien we weten dat de ouder van de nieuwe wortel zeker niet rood is (anders hadden we bij een vorige bewerking een fout),
         zullen de kinderen van de nieuwe deelboom na rotering niet rood gekleurd zijn en zullen we met het rode linkerkind niet in de problemen komen
 
-        tijdcomplexiteit:
-        O(n) voor het slechtste geval, indien we de sleutel moeten toevoegen op de grootst mogelijke diepte en bij het herbalanceren helemaal naar de wortel moeten gaan
-        want de grootst mogelijke diepte in een regenboogboom met n toppen is n, indien n ≤ k
-        dus wanneer we zoeken naar de plaats waar we de sleutel moeten toevoegen, zitten we aan O(n)
-        dan komt er een probleem voor, dus doen we een aantal constante bewerkingen om te roteren
-        dan komt er weer een probleem voor, maar we zitten in het slechtste geval 1 dichter bij de wortel
-        en dan komt er weer een probleem voor enz. waardoor we die constante bewerkingen O(n) keer doen
+        tijdscomplexiteit:
+        eerst een intermezzo, maximale diepte voor zo'n boom berekenen:
+        een regenboogboom met z zwarte toppen op een pad van de wortel naar een null-pointer bevat minstens 2^z - 1 zwarte toppen en dus ook minstens 2^z - 1 toppen
+        dus n >= 2^z - 1 <=> n + 1 >= 2^z <=> log(n+1) >= z, dus maximaal log(n+1) zwarte toppen per pad,
+        maar er kunnen dus voor de k - 1 kleuren vanaf 1 tot k - 1, maar maximaal log(n+1) toppen in zitten,
+        dus zitten er maximaal k * log(n+1) toppen op een pad van de wortel naar zo'n null-pointer en dus is de diepte maximaal k * log(n+1) - 1, dus O(k * log n)
 
-        dus O(n)
+        O(k * log n)
+        wanneer we zoeken naar de plaats waar we de sleutel moeten toevoegen, zitten we maximaal aan O(k * log n)
+        dan komt er mogelijk een probleem voor, dus doen we een aantal constante bewerkingen om te roteren
+        dan komt er mogelijk weer een probleem voor, maar we zitten in het slechtste geval 1 dichter bij de wortel
+        en dan komt er mogelijk weer een probleem voor enz. waardoor we die constante bewerkingen maximaal O(k * log n) keer doen
+
+        dus O(k * log n)
 
     (b) beschrijf verwijderbewerking en geef de tijdscomplexiteit
         zoek naar de top met corresponderende sleutel
@@ -70,21 +75,39 @@
         na de swapping kunnen we gewoon een van de vorige gevallen toepassen
 
         tijdscomplexiteit:
-        O(n) voor het slechtste geval (exclusief het geval waar een rebuild voorkomt, want dit komt zodanig weinig voor, dat het gemiddeld O(n) zal zijn), indien de sleutel op de grootst mogelijke diepte, dit is n
-        we zoeken naar de top, O(n)
+        O(k * log n), exclusief het geval waar een rebuild voorkomt, want dit komt zodanig weinig voor, dat het gemiddeld O(k * log n) zal zijn
+        we zoeken naar de top, maximaal O(k * log n)
         indien het de wortel is in een boom met enkel een wortel, een niet-zwart blad of een top met 1 kind, is de verwijdering zelf O(1)
         indien het een grafsteen is, ook O(1), aangezien we rebuild niet meerekenen
-        indien het een interne top is, zal de zoektocht naar de grootste links O(n) zijn, dan doen we
+        indien het een interne top is, zal de zoektocht naar de grootste links maximaal O(k * log n) zijn, dan doen we
         oftewel grafsteen en dit zal O(1) zijn aangezien we rebuild niet meerekenen
         oftewel swap en een ander geval en dit zal O(1) zijn
 
-        dus O(n)
+        dus O(k * log n)
 
     (c) beschrijf rebuild
-        ...
+        we doen eerst de berekeningen voor l en r
+        dan sorteren nemen we uit de gesorteerde sleutels de eerste r sleutels op even posities, dus stel r = 2 en sleutels = [1, 2, 3, 4, 5]
+        dan krijgen we sleutels 1 en 3, met alle andere sleutels kunnen we nu een compleet binaire boom opbouwen
+        met afwisselende lagen die we op de volgende bepalen:
+        altijd starten met een laag zwart (voor de wortel) en dan oftewel al rood en beginnen afwisselen oftewel nogmaals zwart en dan pas beginnen afwisselen
+        deze keuze maken we adhv n - r, als dit niet 0 is moeten we zorgen dat we eindigen met een zwarte laag, anders eindigen we met een rode laag
+        bij het tweede geval zitten alle sleutels erin en hebben we ons maximaal aantal rode toppen
+        bij het eerste geval voegen we de resterende wortels als rode toppen toe aan degene uit de een bottom level lijst die we bij het rebuilden hebben bijgehouden
+        maar dan is er nog een verbetering mogelijk: indien er rode toppen zijn met 2 zwarte kinderen die geen rode kinderen hebben,
+        kunnen we die rode toppen zwart kleuren en de kinderen rood, we gaan van beneden naar boven over een lijst van rode toppen, die we ook bij het rebuilden hebben bijgehouden
+        dus we checken gwn of het linkerkind zwart is en diens linkerkind niet rood is (rechterkind moet niet gecheckt worden door de manier waarop de boom werd opgebouwd)
+        het is belangrijk dat we van onder naar boven werken, omdat we dan alle mogelijkheden kunnen voorzien voor de toppen daarboven
+
+        maar let op!
+        voor n = 4 en k > 2, zal dit u 1 rode top opleveren, terwijl je perfect 2 rode toppen kunt krijgen door de wortel zwart te maken
+        de kinderen rood en dan de laatste top kleur 2 kunnen geven
+        gelukkig is dit het enige tegenvoorbeeld, want wanneer zo'n isomorfe deelboom voorkomt in een rebuild,
+        zal onze wortel rood gekleurd, waardoor we aan 2 rode toppen zitten
 
     (d) tijdscomplexiteit
-        ...
+        O(n)
+        kga dit nie uitschrijven want tis bijna exact hetzelfde als bij red-black
 
     (e) tijdscomplexiteit voor b bewerkingen
         ...
