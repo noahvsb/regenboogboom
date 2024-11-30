@@ -37,7 +37,7 @@ rainbow_plot <- ggplot(rainbow_plot_data, aes(x = n, y = time, color = as.factor
   labs(
     x = "n",
     y = "time (ms)",
-    title = paste("rainbow tree") ,
+    title = paste("rainbow tree with k", "=", rainbow_plot_data$k[[1]]) ,
     color = "operation"
   ) +
   theme_minimal() +
