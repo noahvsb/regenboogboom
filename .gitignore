@@ -32,3 +32,4 @@ bin/
 *.log
 *.out
 /project-dockerfile/
+.Rproj.user
